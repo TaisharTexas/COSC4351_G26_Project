@@ -13,6 +13,7 @@ Group 26's project
   - Need VOLUNTEER view and ADMIN view for front end (think similar to student and teacher view in canvas).
   - Need login/account creation page for volunteers. Need login page for admins (admins can give admin to other volunteers but volunteers cannot just create/register an admin account)
   - Needs a database to store this all in (prob SQL..I have a project from last semester that uses this structure I can show if ppl wanna see a similar implementation)
+        -Need to create ERD for database.
 1c) Tech Stack:
   - Build UI with [Flutter](https://docs.flutter.dev/get-started/install?_gl=1*fv6ouu*_ga*OTAwMzkwNDk1LjE3MjU2NjUzODU.*_ga_04YGWK0175*MTcyNTY2NTM4NS4xLjAuMTcyNTY2NTM4NS4wLjAuMA..) 
   - Possibly integrate [Firebase](https://firebase.google.com/docs/flutter/setup?platform=ios) into the Flutter app framework for data handling and database needs
