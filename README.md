@@ -32,9 +32,15 @@ Group 26's project
   - Use github for version control.
 
 
+
+
 2) Dev Methodology:
   - I think waterfall is fine. Maybe in the real world Agile would be better so that the project could adapt to customer needs changing over time and also so the customer can see progress faster. But in this case the project is static because its a graded assignment, so we would be able to do the in depth requirements planning and count on them staying the same for the whole project (which waterfall needs).
   - Waterfall also makes division of labor easier and more concrete whereas Agile requires a lot more active involvement and a higher degree of management/coordination that is challenging in a student body environment.
+
+
+
+
 
   3) High-Level Design/Architecture:
   - Need front end window design (each screen and how it connects/links to other pages) with description of what each page does (basically a wire diagram)
