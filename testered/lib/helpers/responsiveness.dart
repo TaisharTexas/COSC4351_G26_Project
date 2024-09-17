@@ -9,24 +9,29 @@ class ResponsiveWidget extends StatelessWidget{
   final Widget largeScreen; //no ? b/c its required by the constructor
   final Widget? mediumScreen; //? means it has a default value of null if nothing is provided to the constructor
   final Widget smallScreen; //no ? b/c its required by the constructor
-  // final Widget customScreen;
+  final Widget? customScreen;
   const ResponsiveWidget({
     required this.largeScreen,
     this.mediumScreen,
     required this.smallScreen,
+    this.customScreen,
     super.key,});
 
-  static bool isSmallScreen(BuildContext context) =>
-      MediaQuery.of(context).size.width < smallScreenSize;
-  static bool isMediumScreen(BuildContext context) =>
-      MediaQuery.of(context).size.width >= mediumScreenSize &&
-      MediaQuery.of(context).size.width < largeScreenSize;
-  static bool isLargeScreen(BuildContext context) =>
-      MediaQuery.of(context).size.width >= largeScreenSize;
-  static bool isCustomeScreen(BuildContext context) =>
-      MediaQuery.of(context).size.width >= mediumScreenSize &&
-      MediaQuery.of(context).size.width <= customScreenSize;
+  static bool isSmallScreen(BuildContext context) {
+    return MediaQuery.of(context).size.width < mediumScreenSize;
+  }
 
+  static bool isMediumScreen(BuildContext context) {
+    return MediaQuery.of(context).size.width >= mediumScreenSize && MediaQuery.of(context).size.width < largeScreenSize;
+  }
+
+  static bool isLargeScreen(BuildContext context) {
+    return MediaQuery.of(context).size.width > largeScreenSize;
+  }
+
+  static bool isCustomSize(BuildContext context) {
+    return MediaQuery.of(context).size.width <= customScreenSize && MediaQuery.of(context).size.width >= mediumScreenSize;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,5 +43,6 @@ class ResponsiveWidget extends StatelessWidget{
 
     });
   }
+
 
 }
