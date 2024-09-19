@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:testered/screens/login_screen.dart';
 import 'package:testered/screens/profile_screen.dart';
-import 'screens/login_screen_ld.dart';
-import 'screens/registration_screen_old.dart';
+import 'package:testered/screens/registration_screen.dart';
+
 
 void main() {
   runApp(VolunteerApp());
