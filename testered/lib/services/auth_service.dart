@@ -1,38 +1,28 @@
 import '../models/user_model.dart';
+import 'db_helper.dart';
 
 class AuthService {
-  final List<User> _users = [];
+  final DBHelper dbHelper = DBHelper();
 
-  // Return nullable User for login
-  User? login(String email, String password) {
-    try {
-      return _users.firstWhere(
-            (user) => user.email == email && user.password == password,
-      );
-    } catch (e) {
-      return null;  // Return null if user is not found
-    }
+  // Authenticate user by email and password
+  Future<User?> login(String email, String password) async {
+    return await dbHelper.getUser(email, password);
   }
 
-  // Register a user, ensure email doesn't already exist
-  bool registerUser(String email, String password) {
-    if (_users.any((user) => user.email == email)) {
-      return false; // User with this email already exists
+  // Register a new user
+  Future<bool> registerUser(String email, String password) async {
+    User? existingUser = await dbHelper.getUser(email, password);
+    if (existingUser != null) {
+      return false; // User already exists
     }
-    _users.add(User(
+
+    // Insert new user into the database
+    User newUser = User(
       id: DateTime.now().toString(),
       email: email,
       password: password,
-    ));
+    );
+    await dbHelper.insertUser(newUser);
     return true;
-  }
-
-  // Get user by email, return nullable User
-  User? getUserByEmail(String email) {
-    try {
-      return _users.firstWhere((user) => user.email == email);
-    } catch (e) {
-      return null;  // Return null if user is not found
-    }
   }
 }

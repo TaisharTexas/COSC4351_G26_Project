@@ -16,29 +16,23 @@ class LoginScreen extends StatelessWidget {
         padding: EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Email input field
             TextField(
               controller: emailController,
               decoration: InputDecoration(labelText: 'Email'),
             ),
-
-            // Password input field
             TextField(
               controller: passwordController,
               decoration: InputDecoration(labelText: 'Password'),
               obscureText: true,
             ),
-
             SizedBox(height: 20),
-
-            // Login button
             ElevatedButton(
-              onPressed: () async {
+              onPressed: () {
                 String email = emailController.text;
                 String password = passwordController.text;
 
-                // Authenticate user (use await as it's async)
-                User? user = await authService.login(email, password);
+                // Authenticate user
+                User? user = authService.login(email, password);
 
                 if (user != null) {
                   // On successful login, navigate to ProfileScreen and pass the User object
@@ -49,16 +43,13 @@ class LoginScreen extends StatelessWidget {
                     ),
                   );
                 } else {
-                  // Display error if login fails
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Invalid login credentials')),
-                  );
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text('Invalid login credentials'),
+                  ));
                 }
               },
               child: Text('Login'),
             ),
-
-            // Register button
             TextButton(
               onPressed: () {
                 Navigator.pushNamed(context, '/register');
