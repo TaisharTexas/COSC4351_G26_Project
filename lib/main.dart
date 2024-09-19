@@ -78,7 +78,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     mainAxisSize: MainAxisSize.min,
                     children:<Widget>[
                       IconButton(icon: Icon(Icons.account_circle, size: 40,), onPressed:(){
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => Login()));
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => loginHome()));
                     }),
                     Text('Sign in.', style: TextStyle(fontSize: 10, color: Colors.black, fontWeight: FontWeight.bold),),
                     ]
