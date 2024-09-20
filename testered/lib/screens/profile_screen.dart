@@ -92,6 +92,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   @override
+  void dispose() {
+    fullNameController.dispose();
+    address1Controller.dispose();
+    address2Controller.dispose();
+    cityController.dispose();
+    zipCodeController.dispose();
+    preferencesController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Profile')),
@@ -127,7 +138,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
               // State Dropdown
               DropdownButtonFormField<String>(
-                value: selectedState,
+                value: states[0],
                 items: states.map((String state) {
                   return DropdownMenuItem<String>(
                     value: state,
