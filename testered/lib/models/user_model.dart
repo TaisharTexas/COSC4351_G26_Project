@@ -1,16 +1,44 @@
+import 'package:hive/hive.dart';
+
+part 'user_model.g.dart';  // Hive TypeAdapter will be generated
+
+@HiveType(typeId: 0)  // Assign a unique typeId for User class
 class User {
-  final String id;
+  @HiveField(0)
+  final String id;  // Hive doesn't support auto-increment, so use a string ID (or manage manually if needed)
+
+  @HiveField(1)
   final String email;
+
+  @HiveField(2)
   final String password;
+
+  @HiveField(3)
   String fullName;
+
+  @HiveField(4)
   String address1;
+
+  @HiveField(5)
   String address2;
+
+  @HiveField(6)
   String city;
+
+  @HiveField(7)
   String state;
+
+  @HiveField(8)
   String zipCode;
-  List<String> skills;
+
+  @HiveField(9)
+  List<String> skills;  // Hive can handle basic lists like List<String>
+
+  @HiveField(10)
   String preferences;
-  List<DateTime> availability;
+
+  @HiveField(11)
+  List<DateTime> availability;  // For DateTime, Hive stores this as a list
 
   User({
     required this.id,
@@ -26,43 +54,4 @@ class User {
     this.preferences = '',
     this.availability = const [],
   });
-
-  // Convert a User object into a map for SQLite
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'email': email,
-      'password': password,
-      'fullName': fullName,
-      'address1': address1,
-      'address2': address2,
-      'city': city,
-      'state': state,
-      'zipCode': zipCode,
-      'skills': skills.join(','), // Store skills as comma-separated string
-      'preferences': preferences,
-      'availability': availability.map((e) => e.toIso8601String()).join(','), // Store availability as comma-separated dates
-    };
-  }
-
-  // Convert a map from SQLite back into a User object
-  factory User.fromMap(Map<String, dynamic> map) {
-    return User(
-      id: map['id'],
-      email: map['email'],
-      password: map['password'],
-      fullName: map['fullName'] ?? '',
-      address1: map['address1'] ?? '',
-      address2: map['address2'] ?? '',
-      city: map['city'] ?? '',
-      state: map['state'] ?? '',
-      zipCode: map['zipCode'] ?? '',
-      skills: (map['skills'] as String).split(','),
-      preferences: map['preferences'] ?? '',
-      availability: (map['availability'] as String)
-          .split(',')
-          .map((date) => DateTime.parse(date))
-          .toList(),
-    );
-  }
 }

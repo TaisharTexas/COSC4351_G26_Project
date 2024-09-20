@@ -1,11 +1,10 @@
-import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
+import 'package:hive/hive.dart';
 import '../models/user_model.dart';
 
 class DBHelper {
   // Singleton instance
   static final DBHelper _instance = DBHelper._();
-  static Database? _database;
+  static Box<User>? _userBox;
 
   DBHelper._();
 
@@ -14,74 +13,53 @@ class DBHelper {
     return _instance;
   }
 
-  // Get the database instance (lazy initialization)
-  Future<Database> get database async {
-    if (_database != null) return _database!;
-    _database = await _initDB();
-    return _database!;
+  // Initialize Hive and open the box for users
+  Future<void> initDB() async {
+    if (_userBox != null) return;  // Box already opened
+
+    // Open the Hive box for users
+    _userBox = await Hive.openBox<User>('usersBox');
+
+    // Insert default user on initialization
+    if (_userBox!.isEmpty) {
+      await _userBox!.put('1', User(
+          id: '1',
+          email: 'janedoe@hotmail.com',
+          password: 'spiketail',
+          fullName: 'Jane Doe',
+          address1: '123 Doe St',
+          city: 'Cool City',
+          state: 'Serenrae',
+          zipCode: '12345',
+          skills: ['stabbing things'],
+          preferences: 'stabbing things',
+          availability: [DateTime.now()]
+      ));
+    }
   }
 
-  // Initialize the database
-  Future<Database> _initDB() async {
-    // Define the path to the database file
-    String path = join(await getDatabasesPath(), 'volunteer_management.db');
-
-    // Open the database and create it if it doesn't exist
-    return await openDatabase(
-      path,
-      version: 1,
-      onCreate: _createDB,
-    );
-  }
-
-  // Create the tables
-  Future _createDB(Database db, int version) async {
-    await db.execute('''
-      CREATE TABLE users (
-        id TEXT PRIMARY KEY,
-        email TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL,
-        fullName TEXT,
-        address1 TEXT,
-        address2 TEXT,
-        city TEXT,
-        state TEXT,
-        zipCode TEXT,
-        skills TEXT,
-        preferences TEXT,
-        availability TEXT
-      )
-    ''');
-  }
-
-  // Insert a new user (returns void)
+  // Insert a new user
   Future<void> insertUser(User user) async {
-    final db = await database;
     try {
-      await db.insert(
-        'users',
-        user.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace, // Replace if user exists
-      );
+      await _userBox!.put(user.id, user);  // Use user ID as the key
     } catch (error) {
       print('Error inserting user: $error');
     }
   }
 
-  // Fetch a user by email and password (returns User? if found, else null)
-  Future<User?> getUser(String email, String password) async {
-    final db = await database;
+  // Fetch a user by email and password
+  User? getUser(String email, String password) {
     try {
-      final maps = await db.query(
-        'users',
-        where: 'email = ? AND password = ?',
-        whereArgs: [email, password],
-      );
+      // Search through all users to find the matching credentials
+      final users = _userBox!.values
+          .where((user) => user.email == email && user.password == password)
+          .toList();
 
-      if (maps.isNotEmpty) {
-        return User.fromMap(maps.first);
+      // Return the first matching user if found, else return null
+      if (users.isNotEmpty) {
+        return users.first;
       } else {
-        return null; // No user found with matching credentials
+        return null;  // Return null if no user is found
       }
     } catch (error) {
       print('Error fetching user: $error');
@@ -89,20 +67,15 @@ class DBHelper {
     }
   }
 
-  // Fetch a user by email (for registration check)
-  Future<User?> getUserByEmail(String email) async {
-    final db = await database;
+  // Fetch a user by email
+  User? getUserByEmail(String email) {
     try {
-      final maps = await db.query(
-        'users',
-        where: 'email = ?',
-        whereArgs: [email],
-      );
+      final users = _userBox!.values.where((user) => user.email == email).toList();
 
-      if (maps.isNotEmpty) {
-        return User.fromMap(maps.first);
+      if (users.isNotEmpty) {
+        return users.first;
       } else {
-        return null; // No user found with the given email
+        return null;  // Return null if no user is found
       }
     } catch (error) {
       print('Error fetching user by email: $error');
@@ -110,46 +83,29 @@ class DBHelper {
     }
   }
 
-  // Update user profile (returns void)
+  // Update user profile
   Future<void> updateUser(User user) async {
-    final db = await database;
     try {
-      await db.update(
-        'users',
-        user.toMap(),
-        where: 'id = ?',
-        whereArgs: [user.id],
-      );
+      await _userBox!.put(user.id, user);  // Replace the existing user with the same ID
     } catch (error) {
       print('Error updating user: $error');
     }
   }
 
-  // Get all users (optional - for admin or testing purposes)
-  Future<List<User>> getAllUsers() async {
-    final db = await database;
+  // Get all users
+  List<User> getAllUsers() {
     try {
-      final List<Map<String, dynamic>> maps = await db.query('users');
-
-      // Convert list of maps to list of User objects
-      return List.generate(maps.length, (i) {
-        return User.fromMap(maps[i]);
-      });
+      return _userBox!.values.toList();
     } catch (error) {
       print('Error fetching all users: $error');
       return [];
     }
   }
 
-  // Delete a user by ID (optional)
+  // Delete a user by ID
   Future<void> deleteUser(String id) async {
-    final db = await database;
     try {
-      await db.delete(
-        'users',
-        where: 'id = ?',
-        whereArgs: [id],
-      );
+      await _userBox!.delete(id);
     } catch (error) {
       print('Error deleting user: $error');
     }

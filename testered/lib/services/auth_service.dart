@@ -6,22 +6,28 @@ class AuthService {
 
   // Authenticate user by email and password
   Future<User?> login(String email, String password) async {
-    return await dbHelper.getUser(email, password);
+    // Use DBHelper's getUser method to find user by email and password
+    User? user = dbHelper.getUser(email, password);
+    return user;
   }
 
   // Register a new user
   Future<bool> registerUser(String email, String password) async {
-    User? existingUser = await dbHelper.getUser(email, password);
+    // Check if the user already exists based on email
+    User? existingUser = dbHelper.getUserByEmail(email);
+
     if (existingUser != null) {
       return false; // User already exists
     }
 
-    // Insert new user into the database
+    // Create a new user with a unique ID (timestamp or UUID)
     User newUser = User(
       id: DateTime.now().toString(),
       email: email,
       password: password,
     );
+
+    // Insert the new user into the Hive box using DBHelper
     await dbHelper.insertUser(newUser);
     return true;
   }
