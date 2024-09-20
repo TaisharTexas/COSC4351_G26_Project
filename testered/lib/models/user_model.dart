@@ -4,8 +4,8 @@ part 'user_model.g.dart';  // Hive TypeAdapter will be generated
 
 @HiveType(typeId: 0)  // Assign a unique typeId for User class
 class User {
-  @HiveField(0)
-  final String id;  // Hive doesn't support auto-increment, so use a string ID (or manage manually if needed)
+  // @HiveField(0)
+  // final String id;  // Hive doesn't support auto-increment, so use a string ID (or manage manually if needed)
 
   @HiveField(1)
   final String email;
@@ -41,7 +41,7 @@ class User {
   List<DateTime> availability;  // For DateTime, Hive stores this as a list
 
   User({
-    required this.id,
+    // required this.id,
     required this.email,
     required this.password,
     this.fullName = '',

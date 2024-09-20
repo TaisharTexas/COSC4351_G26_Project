@@ -1,10 +1,12 @@
 import 'package:hive/hive.dart';
 import '../models/user_model.dart';
+import '../models/event_model.dart';
 
 class DBHelper {
   // Singleton instance
   static final DBHelper _instance = DBHelper._();
   static Box<User>? _userBox;
+  static Box<Event>? _eventBox;
 
   DBHelper._();
 
@@ -15,33 +17,37 @@ class DBHelper {
 
   // Initialize Hive and open the box for users
   Future<void> initDB() async {
-    if (_userBox != null) return;  // Box already opened
+    if (_userBox != null && _eventBox != null) return;  // Box already opened
 
     // Open the Hive box for users
     _userBox = await Hive.openBox<User>('usersBox');
+    // Open the Hive box for events
+    _eventBox = await Hive.openBox<Event>('eventsBox');
 
     // Insert default user on initialization
     if (_userBox!.isEmpty) {
       await _userBox!.put('1', User(
-          id: '1',
+          // id: '1',
           email: 'janedoe@hotmail.com',
           password: 'spiketail',
           fullName: 'Jane Doe',
           address1: '123 Doe St',
           city: 'Cool City',
-          state: 'Serenrae',
+          state: 'TX',
           zipCode: '12345',
-          skills: ['stabbing things'],
-          preferences: 'stabbing things',
+          skills: ['Volunteer'],
+          preferences: 'I like to stab people',
           availability: [DateTime.now()]
       ));
     }
   }
 
+  // ---- User Methods ---- //
+
   // Insert a new user
   Future<void> insertUser(User user) async {
     try {
-      await _userBox!.put(user.id, user);  // Use user ID as the key
+      await _userBox!.put(user.email, user);  // Use email as the key
     } catch (error) {
       print('Error inserting user: $error');
     }
@@ -86,7 +92,7 @@ class DBHelper {
   // Update user profile
   Future<void> updateUser(User user) async {
     try {
-      await _userBox!.put(user.id, user);  // Replace the existing user with the same ID
+      await _userBox!.put(user.email, user);  // Replace the existing user with the same ID
     } catch (error) {
       print('Error updating user: $error');
     }
@@ -102,12 +108,52 @@ class DBHelper {
     }
   }
 
-  // Delete a user by ID
-  Future<void> deleteUser(String id) async {
+  // Delete a user by email
+  Future<void> deleteUser(String email) async {
     try {
-      await _userBox!.delete(id);
+      await _userBox!.delete(email);
     } catch (error) {
       print('Error deleting user: $error');
+    }
+  }
+
+  // ---- Event Methods ---- //
+
+  // Insert a new event
+  Future<void> insertEvent(Event event) async {
+    try {
+      await _eventBox!.put(event.id, event);  // Use id as the key
+    } catch (error) {
+      print('Error inserting event: $error');
+    }
+  }
+
+  // Fetch all events
+  List<Event> getAllEvents() {
+    try {
+      return _eventBox!.values.toList();
+    } catch (error) {
+      print('Error fetching all events: $error');
+      return [];
+    }
+  }
+
+  // Delete an event by id
+  Future<void> deleteEvent(String id) async {
+    try {
+      await _eventBox!.delete(id);
+    } catch (error) {
+      print('Error deleting event: $error');
+    }
+  }
+
+  // Fetch a specific event by id
+  Event? getEventById(String id) {
+    try {
+      return _eventBox!.get(id);
+    } catch (error) {
+      print('Error fetching event by id: $error');
+      return null;
     }
   }
 }

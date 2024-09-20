@@ -19,7 +19,7 @@ class UserService {
   Future<void> updateUserProfile(User user) async {
     try {
       // Put (update) the user in the Hive box, replacing the existing user with the same ID
-      await userBox.put(user.id, user);
+      await userBox.put(user.email, user);
     } catch (error) {
       print('Error updating user profile: $error');
     }

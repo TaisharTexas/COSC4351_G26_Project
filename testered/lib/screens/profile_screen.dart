@@ -24,13 +24,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final TextEditingController preferencesController = TextEditingController();
 
   // States for dropdowns and multi-selects
-  String selectedState = 'CA';  // Default state selection
-  List<String> selectedSkills = [];
-  List<DateTime> selectedAvailability = [];
+  String selectedState = 'notSet';  // Default state selection
+  List<String> selectedSkills = ['Volunteer']; //Default to just "volunteer"
+  List<DateTime> selectedAvailability = [DateTime.now()]; // Default to the current time
 
   // Hardcoded lists for dropdowns (these would typically come from a service or API)
-  final List<String> states = ['CA', 'NY', 'TX', 'FL', 'IL']; // Add more states as needed
-  final List<String> skillsOptions = ['First Aid', 'Teaching', 'Cooking', 'Event Planning'];
+  final List<String> states = ['CA', 'NY', 'TX', 'FL', 'IL', 'notSet']; // Add more states as needed
+  final List<String> skillsOptions = ['First Aid', 'Teaching', 'Cooking', 'Event Planning', 'Volunteer'];
 
   @override
   void initState() {
