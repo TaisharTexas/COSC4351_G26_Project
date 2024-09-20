@@ -1,27 +1,45 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'login.dart'; // Import the LoginPage class
-import 'package:google_fonts/google_fonts.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/adapters.dart';
+import 'package:testered/screens/login_screen.dart';
+import 'package:testered/screens/profile_screen.dart';
+import 'package:testered/screens/registration_screen.dart';
+import 'package:testered/services/db_helper.dart';
 
-void main() {
-  runApp(const MyApp());
+import 'models/user_model.dart';
+
+//I made main async to make sure it initialized the DB before the app startup
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Hive
+  await Hive.initFlutter();
+
+  // Register the UserAdapter for Hive
+  Hive.registerAdapter(UserAdapter());
+
+  // Initialize the database (opens the Hive box and inserts the default user)
+  await DBHelper().initDB();
+
+  runApp(VolunteerApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  // This widget is the root of your application.
+class VolunteerApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData( 
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.grey),
-        useMaterial3: true,
+      title: 'Volunteer Management',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo balls Page'),
-      
+      initialRoute: '/',
+      debugShowCheckedModeBanner: false,
+      routes: {
+        '/': (context) => MyHomePage(title: 'Volunteer Management'),
+        // '/': (context) => ProfileScreen(user: null,),
+        '/login': (context) => LoginScreen(), // Add this lines
+        '/register': (context) => RegistrationScreen(),
+      },
     );
   }
 }
@@ -35,12 +53,17 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  bool loggedIn = true;
+  User? loggedInUser = null;
 
-  void _incrementCounter() {
+  void login(User u) {
     setState(() {
-      _counter++;
+      loggedIn = false;
+      loggedInUser = u;
     });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('User ${loggedInUser?.email} succesfully logged in!')),
+    );
   }
 
   @override
@@ -49,7 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         toolbarHeight: 80,
-        title: Image.asset('logo.webp', height: 50, width: 50,),
+        title: Image.asset('images/logo.webp', height: 50, width: 50,),
 
         flexibleSpace: Padding( //Creates the banner stuff
           padding: const EdgeInsets.symmetric(horizontal: 10.0),
@@ -57,32 +80,26 @@ class _MyHomePageState extends State<MyHomePage> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 mainAxisSize: MainAxisSize.max,
                 children: <Widget>[ 
-                  Container(
-                  decoration: BoxDecoration( //Search bar thing
-                    color: Colors.white,
-                    border: Border.all(
-                      color: Colors.black,
-                      width: 3,
-                    ),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  width: 150,
-                  height: 30,
-                  child:Align( //The user icon part
-                    alignment: Alignment.topRight,
-                    child:
-                    IconButton(icon: Icon(Icons.search, size:20), onPressed:(){},),
-                  ),
-                  ),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children:<Widget>[
-                      IconButton(icon: Icon(Icons.account_circle, size: 40,), onPressed:(){
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => loginHome()));
-                    }),
-                    Text('Sign in.', style: TextStyle(fontSize: 10, color: Colors.black, fontWeight: FontWeight.bold),),
-                    ]
-                  ),    
+                  loggedIn? //If we're not logged in the site tells us to login
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children:<Widget>[
+                        IconButton(icon: Icon(Icons.account_circle, size: 40,), onPressed:() async{
+                        final loggedInUser = await Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()),);
+                        if (loggedInUser != null){
+                          login(loggedInUser);
+                        };
+                      }),
+                      Text('Sign in.', style: TextStyle(fontSize: 10, color: Colors.black, fontWeight: FontWeight.bold),),
+                      ]
+                    )
+                  :
+                  Column( //If we are logged in it changed the site and we now alter account details 
+                      mainAxisSize: MainAxisSize.min,
+                      children:<Widget>[
+                        IconButton(icon: Icon(Icons.account_circle, size: 50,), onPressed:(){Navigator.push(context, MaterialPageRoute(builder: (context) => ProfileScreen(user: loggedInUser!)),);}),
+                      ]
+                    ),   
               ], 
             ),
           ),
@@ -96,15 +113,16 @@ class _MyHomePageState extends State<MyHomePage> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Image.asset('mainPageBanner.jpg', fit: BoxFit.fitWidth, height: 690,),           
-              Text('Recent Events', style: GoogleFonts.bebasNeue(fontWeight: FontWeight.bold, fontSize: 30,),),
-              Text('$_counter',style: Theme.of(context).textTheme.headlineMedium,),
+            children: <Widget>[  
+              Image.asset('images/mainPageBanner.jpg', fit: BoxFit.fitWidth, height: 690,),
+              Text("EVENTS:"),
+
+              
+              //Text('Recent Events', style: GoogleFonts.bebasNeue(fontWeight: FontWeight.bold, fontSize: 30,),),
           ],
         ),
         ),
       ),
     );
   }
-
 }
