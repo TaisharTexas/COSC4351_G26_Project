@@ -15,6 +15,18 @@ class UserService {
     }
   }
 
+  // Fetch a user by email
+  User? getUserByEmail(String email) {
+    try {
+      // Search for the user in the Hive box by email
+      final user = userBox.get(email);
+      return user;  // Return the user if found
+    } catch (error) {
+      print('Error fetching user by email: $error');
+      return null;
+    }
+  }
+
   // Update user profile in the database (Hive)
   Future<void> updateUserProfile(User user) async {
     try {

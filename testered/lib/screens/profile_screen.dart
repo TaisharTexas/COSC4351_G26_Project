@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // For date formatting
+import 'package:provider/provider.dart';
+import '../models/custom_nav_bar.dart';
 import '../models/user_model.dart';
+import '../services/user_provider.dart';
 import '../services/user_service.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -93,8 +96,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Access the email from the UserProvider
+    final userEmail = Provider.of<UserProvider>(context).email;
+
     return Scaffold(
-      appBar: AppBar(title: Text('Profile')),
+      appBar: CustomNavBar(email: userEmail),
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: SingleChildScrollView(

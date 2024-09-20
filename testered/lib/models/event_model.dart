@@ -25,6 +25,9 @@ class Event {
   @HiveField(6)
   final DateTime eventDate;
 
+  @HiveField(7)
+  List<String> assignedVolunteers;
+
   Event({
     required this.id,
     required this.name,
@@ -33,5 +36,6 @@ class Event {
     required this.requiredSkills,
     required this.urgency,
     required this.eventDate,
+    this.assignedVolunteers = const [],
   });
 }

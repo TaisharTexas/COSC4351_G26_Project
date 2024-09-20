@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:testered/screens/event_creation_screen.dart';
+import 'package:testered/screens/event_display_screen.dart';
 import 'package:testered/screens/login_screen.dart';
+import 'package:testered/screens/profile_screen.dart';
 import 'package:testered/screens/registration_screen.dart';
 import 'package:testered/services/db_helper.dart';
+import 'package:provider/provider.dart';
+import 'models/event_model.dart';
+import 'services/user_provider.dart';
 
 import 'models/user_model.dart';
 
@@ -21,13 +27,21 @@ void main() async {
   // Initialize Hive
   await Hive.initFlutter();
 
-  // Register the UserAdapter for Hive
   Hive.registerAdapter(UserAdapter());
+  Hive.registerAdapter(EventAdapter());
 
   // Initialize the database (opens the Hive box and inserts the default user)
   await DBHelper().initDB();
 
-  runApp(VolunteerApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => UserProvider()), // Provide the UserProvider globally
+      ],
+      child: VolunteerApp(),
+    ),
+  );
+  // runApp(VolunteerApp());
 }
 
 class VolunteerApp extends StatelessWidget {
@@ -38,11 +52,13 @@ class VolunteerApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      initialRoute: '/',
+      initialRoute: '/login',
       routes: {
-        '/': (context) => LoginScreen(),
-        // '/': (context) => ProfileScreen(user: null,),
+        '/login': (context) => LoginScreen(),
         '/register': (context) => RegistrationScreen(),
+        '/eventList': (context) => EventDisplayScreen(),
+        '/eventCreate': (context) => EventCreationScreen(),
+
       },
     );
   }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:testered/screens/profile_screen.dart';
 import '../services/auth_service.dart';
 import '../models/user_model.dart';
+import '../services/user_provider.dart';
 
 class LoginScreen extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
@@ -36,11 +38,11 @@ class LoginScreen extends StatelessWidget {
               onPressed: () async {
                 String email = emailController.text;
                 String password = passwordController.text;
-
                 // Authenticate user (use await as it's async)
                 User? user = await authService.login(email, password);
-
                 if (user != null) {
+                  //On successful login, set the global email to unlock access to user-specific screens
+                  Provider.of<UserProvider>(context, listen: false).setEmail(email);
                   // On successful login, navigate to ProfileScreen and pass the User object
                   Navigator.push(
                     context,
