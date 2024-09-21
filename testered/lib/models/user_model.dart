@@ -38,7 +38,13 @@ class User {
   String preferences;
 
   @HiveField(10)
-  List<DateTime> availability;  // For DateTime, Hive stores this as a list
+  List<DateTime> availability;
+
+  @HiveField(11)
+  List<String> pastEvents;
+
+
+  // For DateTime, Hive stores this as a list
 
   User({
     // required this.id,
@@ -53,5 +59,6 @@ class User {
     this.skills = const [],
     this.preferences = '',
     this.availability = const [],
+    this.pastEvents = const [],
   });
 }

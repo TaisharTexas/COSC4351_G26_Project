@@ -6,6 +6,8 @@ import 'package:testered/screens/event_display_screen.dart';
 import 'package:testered/screens/login_screen.dart';
 import 'package:testered/screens/profile_screen.dart';
 import 'package:testered/screens/registration_screen.dart';
+import 'package:testered/screens/volunteer_display_screen.dart';
+import 'package:testered/screens/volunteer_listing_screen.dart';
 import 'package:testered/services/db_helper.dart';
 import 'package:provider/provider.dart';
 import 'models/event_model.dart';
@@ -58,6 +60,8 @@ class VolunteerApp extends StatelessWidget {
         '/register': (context) => RegistrationScreen(),
         '/eventList': (context) => EventDisplayScreen(),
         '/eventCreate': (context) => EventCreationScreen(),
+        '/volunteerListMatch': (context) => VolunteerListingScreen(),
+        '/volunteerDisplay': (context) => VolunteerDisplayScreen(),
 
       },
     );

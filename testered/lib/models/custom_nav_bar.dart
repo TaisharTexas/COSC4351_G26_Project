@@ -72,6 +72,30 @@ class CustomNavBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
         Padding(
+          padding: const EdgeInsets.only(right: buttonPaddingRight), // Add more space for the button
+          child: TextButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/volunteerListMatch'); // Navigate to volunteer event match screen
+            },
+            child: Text(
+              'Volunteer-Event Matches',
+              style: TextStyle(color: Colors.black),
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(right: buttonPaddingRight), // Add more space for the button
+          child: TextButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/volunteerDisplay'); // Navigate to volunteer event match screen
+            },
+            child: Text(
+              'Volunteer History',
+              style: TextStyle(color: Colors.black),
+            ),
+          ),
+        ),
+        Padding(
           padding: const EdgeInsets.only(right: buttonPaddingRight),
           child: IconButton(
             icon: Icon(Icons.logout, color: Colors.black),  // Logout icon button
