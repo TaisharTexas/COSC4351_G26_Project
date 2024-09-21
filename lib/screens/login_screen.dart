@@ -21,6 +21,8 @@ class _LoginScreen extends State<LoginScreen>{
     });
   }
 
+  bool _obscurePassword = true;
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -121,16 +123,20 @@ class _LoginScreen extends State<LoginScreen>{
                               child: SizedBox(
                                 width: 200,
                                 child:TextField(
-                                  obscureText: showPas,
-                                  controller: passwordController,
-                                  decoration: InputDecoration(
-                                    border: OutlineInputBorder(),
-                                    labelText: 'Enter password',
-                                    suffixIcon: showPas? //Cool thing that allows user to see the password
-                                      IconButton(icon: Icon(Icons.remove_red_eye, size: 20,), onPressed:(){unhidePassword();},)
-                                      : 
-                                      IconButton(icon: Icon(Icons.visibility_off, size: 20,), onPressed:(){unhidePassword();},)
-                                  ),
+                                    controller: passwordController,
+                                    decoration: InputDecoration(
+                                      labelText: 'Password',
+                                      suffixIcon: IconButton(
+                                        icon: Icon(_obscurePassword ? Icons.visibility : Icons.visibility_off),
+                                        onPressed: () {
+                                          setState(() {
+                                            _obscurePassword = !_obscurePassword;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                    obscureText: _obscurePassword,
+
                                 ),
                               ),
                             )
