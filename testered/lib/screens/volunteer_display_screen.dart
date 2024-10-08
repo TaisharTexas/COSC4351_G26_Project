@@ -41,6 +41,7 @@ class _VolunteerDisplayScreenState extends State<VolunteerDisplayScreen> {
           name: 'Event not found',
           description: '',
           location: '',
+          address: '',
           requiredSkills: [],
           urgency: 'N/A',
           eventDate: DateTime.now(),

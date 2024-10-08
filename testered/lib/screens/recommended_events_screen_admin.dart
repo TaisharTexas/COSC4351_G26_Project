@@ -6,12 +6,12 @@ import '../models/event_model.dart';  // Assuming you have event_model.dart
 import '../services/db_helper.dart';
 import '../services/user_provider.dart';
 
-class VolunteerListingScreen extends StatefulWidget {
+class RecommendedEventsAdmin extends StatefulWidget {
   @override
-  _VolunteerListingScreenState createState() => _VolunteerListingScreenState();
+  _RecommendedEventsAdminState createState() => _RecommendedEventsAdminState();
 }
 
-class _VolunteerListingScreenState extends State<VolunteerListingScreen> {
+class _RecommendedEventsAdminState extends State<RecommendedEventsAdmin> {
   List<User> volunteers = [];
   List<Event> events = [];
 

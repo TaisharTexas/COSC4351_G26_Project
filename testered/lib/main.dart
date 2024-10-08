@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:testered/screens/event_creation_screen.dart';
-import 'package:testered/screens/event_display_screen.dart';
+import 'package:testered/screens/event_display_screen_admin.dart';
+import 'package:testered/screens/event_display_screen_user.dart';
 import 'package:testered/screens/login_screen.dart';
-import 'package:testered/screens/profile_screen.dart';
-import 'package:testered/screens/registration_screen.dart';
+import 'package:testered/screens/recommended_events_screen_admin.dart';
+import 'package:testered/screens/recommended_events_screen_user.dart';
+import 'package:testered/screens/registration_screen_user.dart';
 import 'package:testered/screens/volunteer_display_screen.dart';
-import 'package:testered/screens/volunteer_listing_screen.dart';
 import 'package:testered/services/db_helper.dart';
 import 'package:provider/provider.dart';
 import 'models/event_model.dart';
@@ -58,9 +59,11 @@ class VolunteerApp extends StatelessWidget {
       routes: {
         '/login': (context) => LoginScreen(),
         '/register': (context) => RegistrationScreen(),
-        '/eventList': (context) => EventDisplayScreen(),
+        '/eventListAdmin': (context) => EventDisplayScreenAdmin(),
+        '/eventListUser': (context) => EventDisplayScreenUser(),
         '/eventCreate': (context) => EventCreationScreen(),
-        '/volunteerListMatch': (context) => VolunteerListingScreen(),
+        '/recommendedEventsAdmin': (context) => RecommendedEventsAdmin(),
+        '/recommendedEventsUser': (context) => RecommendedEventsUser(),
         '/volunteerDisplay': (context) => VolunteerDisplayScreen(),
 
       },

@@ -17,46 +17,52 @@ class UserAdapter extends TypeAdapter<User> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return User(
-      email: fields[1] as String,
-      password: fields[2] as String,
-      fullName: fields[3] as String,
-      address1: fields[4] as String,
-      address2: fields[5] as String,
-      city: fields[6] as String,
-      state: fields[7] as String,
-      zipCode: fields[8] as String,
-      skills: (fields[9] as List).cast<String>(),
-      preferences: fields[10] as String,
-      availability: (fields[11] as List).cast<DateTime>(),
+      email: fields[0] as String,
+      password: fields[1] as String,
+      fullName: fields[2] as String,
+      address1: fields[3] as String,
+      address2: fields[4] as String,
+      city: fields[5] as String,
+      state: fields[6] as String,
+      zipCode: fields[7] as String,
+      skills: (fields[8] as List).cast<String>(),
+      preferences: fields[9] as String,
+      availability: (fields[10] as List).cast<DateTime>(),
+      pastEvents: (fields[11] as List).cast<String>(),
+      isAdmin: fields[12] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, User obj) {
     writer
-      ..writeByte(11)
-      ..writeByte(1)
+      ..writeByte(13)
+      ..writeByte(0)
       ..write(obj.email)
-      ..writeByte(2)
+      ..writeByte(1)
       ..write(obj.password)
-      ..writeByte(3)
+      ..writeByte(2)
       ..write(obj.fullName)
-      ..writeByte(4)
+      ..writeByte(3)
       ..write(obj.address1)
-      ..writeByte(5)
+      ..writeByte(4)
       ..write(obj.address2)
-      ..writeByte(6)
+      ..writeByte(5)
       ..write(obj.city)
-      ..writeByte(7)
+      ..writeByte(6)
       ..write(obj.state)
-      ..writeByte(8)
+      ..writeByte(7)
       ..write(obj.zipCode)
-      ..writeByte(9)
+      ..writeByte(8)
       ..write(obj.skills)
-      ..writeByte(10)
+      ..writeByte(9)
       ..write(obj.preferences)
+      ..writeByte(10)
+      ..write(obj.availability)
       ..writeByte(11)
-      ..write(obj.availability);
+      ..write(obj.pastEvents)
+      ..writeByte(12)
+      ..write(obj.isAdmin);
   }
 
   @override

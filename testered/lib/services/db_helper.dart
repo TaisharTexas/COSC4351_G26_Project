@@ -47,6 +47,7 @@ class DBHelper {
         preferences: 'I love helping people',
         availability: [DateTime.now()],
         pastEvents: ['1', '3'],
+        isAdmin: true,
       ),
       User(
         email: 'johndoe@gmail.com',
@@ -206,7 +207,7 @@ class DBHelper {
     print('Dummy users inserted into the database.');
   }
 
-  // Function to insert dummy events into the events box
+// Function to insert dummy events into the events box
   Future<void> _insertDummyEvents() async {
     List<Event> dummyEvents = [
       Event(
@@ -214,6 +215,7 @@ class DBHelper {
         name: 'Community Cleanup',
         description: 'Join us to clean up the local park and surrounding areas.',
         location: 'Central Park',
+        address: '59th St to 110th St, Manhattan, NY 10022', // Address for Central Park
         requiredSkills: ['Volunteer'],
         urgency: 'Medium',
         eventDate: DateTime.now().add(Duration(days: 7)),
@@ -223,6 +225,7 @@ class DBHelper {
         name: 'First Aid Workshop',
         description: 'A workshop on first aid basics, open to all.',
         location: 'Community Center',
+        address: '1234 Main St, Anytown, USA 12345', // Example address for a Community Center
         requiredSkills: ['First Aid'],
         urgency: 'Low',
         eventDate: DateTime.now().add(Duration(days: 14)),
@@ -232,6 +235,7 @@ class DBHelper {
         name: 'Charity Fun Run',
         description: 'Help organize a charity fun run to raise money for local causes.',
         location: 'Main Street',
+        address: '100 Main St, Springfield, IL 62701', // Address for Main Street
         requiredSkills: ['Event Planning', 'Volunteer'],
         urgency: 'High',
         eventDate: DateTime.now().add(Duration(days: 21)),
@@ -241,6 +245,7 @@ class DBHelper {
         name: 'Food Drive',
         description: 'Help us collect and distribute food to those in need.',
         location: 'Food Bank',
+        address: '456 Elm St, Foodtown, CA 90210', // Address for a Food Bank
         requiredSkills: ['Volunteer', 'Cooking'],
         urgency: 'High',
         eventDate: DateTime.now().add(Duration(days: 5)),
@@ -250,6 +255,7 @@ class DBHelper {
         name: 'Blood Donation Camp',
         description: 'Assist in organizing a blood donation camp for the community.',
         location: 'Community Hall',
+        address: '789 Maple Ave, Bloodville, NY 11223', // Address for a Community Hall
         requiredSkills: ['First Aid', 'Volunteer'],
         urgency: 'Urgent',
         eventDate: DateTime.now().add(Duration(days: 3)),
@@ -259,6 +265,7 @@ class DBHelper {
         name: 'Disaster Relief Training',
         description: 'Learn and help others with basic disaster relief training.',
         location: 'Disaster Management Center',
+        address: '1010 Oak St, Safetyville, TX 77001', // Address for Disaster Management Center
         requiredSkills: ['First Aid', 'Event Planning'],
         urgency: 'Medium',
         eventDate: DateTime.now().add(Duration(days: 10)),
@@ -268,6 +275,7 @@ class DBHelper {
         name: 'Animal Shelter Volunteering',
         description: 'Volunteer to take care of the animals at the local shelter.',
         location: 'Animal Shelter',
+        address: '1111 Paw St, Petville, FL 33101', // Address for an Animal Shelter
         requiredSkills: ['Volunteer'],
         urgency: 'Low',
         eventDate: DateTime.now().add(Duration(days: 12)),
@@ -277,6 +285,7 @@ class DBHelper {
         name: 'Teaching Kids Coding',
         description: 'Teach basic coding skills to underprivileged children.',
         location: 'Local School',
+        address: '2222 Code Ave, Teacherville, CA 90210', // Address for a Local School
         requiredSkills: ['Teaching'],
         urgency: 'Medium',
         eventDate: DateTime.now().add(Duration(days: 30)),
@@ -286,6 +295,7 @@ class DBHelper {
         name: 'Community Garden Project',
         description: 'Help us plant and maintain a community garden.',
         location: 'Community Garden',
+        address: '3333 Green St, Garden City, NY 10001', // Address for a Community Garden
         requiredSkills: ['Event Planning', 'Volunteer'],
         urgency: 'Low',
         eventDate: DateTime.now().add(Duration(days: 15)),
@@ -295,7 +305,7 @@ class DBHelper {
     for (Event event in dummyEvents) {
       await _eventBox!.put(event.id, event);  // Use event ID as the key
     }
-    print('Dummy events inserted into the database.');
+    print('Dummy events with addresses inserted into the database.');
   }
 
 

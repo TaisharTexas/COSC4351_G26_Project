@@ -3,19 +3,21 @@ import 'package:intl/intl.dart'; // For date formatting
 import 'package:provider/provider.dart';
 import '../models/custom_nav_bar.dart';
 import '../models/user_model.dart';
+import '../models/event_model.dart'; // Assuming you have an Event model
 import '../services/user_provider.dart';
 import '../services/user_service.dart';
+import '../services/db_helper.dart';  // Assuming you have a DBHelper to fetch events
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreenUser extends StatefulWidget {
   final User user;
 
-  ProfileScreen({required this.user});
+  ProfileScreenUser({required this.user});
 
   @override
-  _ProfileScreenState createState() => _ProfileScreenState();
+  _ProfileScreenUserState createState() => _ProfileScreenUserState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileScreenUserState extends State<ProfileScreenUser> {
   final UserService userService = UserService();
 
   // Controllers for text fields
@@ -28,11 +30,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   // States for dropdowns and multi-selects
   String selectedState = 'notSet';  // Default state selection
-  List<String> selectedSkills = ['Volunteer']; //Default to just "volunteer"
+  List<String> selectedSkills = ['Volunteer']; // Default to just "volunteer"
   List<DateTime> selectedAvailability = [DateTime.now()]; // Default to the current time
 
+  List<Event> volunteerHistory = []; // List to store past events
+
   // Hardcoded lists for dropdowns (these would typically come from a service or API)
-  final List<String> states = ['CA', 'NY', 'TX', 'FL', 'IL', 'notSet']; // Add more states as needed
+  final List<String> states = [
+    'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
+    'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
+    'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ',
+    'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC',
+    'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY',
+    'notSet'
+  ];
   final List<String> skillsOptions = ['First Aid', 'Teaching', 'Cooking', 'Event Planning', 'Volunteer'];
 
   @override
@@ -49,6 +60,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
     selectedState = widget.user.state;
     selectedSkills = widget.user.skills;
     selectedAvailability = widget.user.availability;
+
+    // Load user's volunteer history
+    _loadVolunteerHistory();
+  }
+
+  // Function to load user's volunteer history based on their past events
+  Future<void> _loadVolunteerHistory() async {
+    List<Event> events = [];
+    for (String eventId in widget.user.pastEvents) {
+      final event = await DBHelper().getEventById(eventId); // Assuming DBHelper has a getEventById method
+      if (event != null) {
+        events.add(event);
+      }
+    }
+    setState(() {
+      volunteerHistory = events;
+    });
   }
 
   // Function to display DatePicker and add selected dates to the list
@@ -206,6 +234,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 onPressed: _saveProfile,
                 child: Text('Save Profile'),
               ),
+
+              SizedBox(height: 20),
+
+              // Volunteer History Section
+              Divider(),
+              Text(
+                'Volunteer History',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              volunteerHistory.isNotEmpty
+                  ? ListView.builder(
+                shrinkWrap: true, // Important for embedding in scrollable views
+                itemCount: volunteerHistory.length,
+                itemBuilder: (context, index) {
+                  final event = volunteerHistory[index];
+                  return ListTile(
+                    title: Text(event.name),
+                    subtitle: Text('Date: ${DateFormat('MM/dd/yyyy').format(event.eventDate)}'),
+                  );
+                },
+              )
+                  : Text('No volunteer history available.'),
             ],
           ),
         ),

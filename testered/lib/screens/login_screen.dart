@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:testered/screens/profile_screen.dart';
+import 'package:testered/screens/profile_screen_user.dart';
+import 'package:testered/screens/profile_screen_admin.dart';
 import '../services/auth_service.dart';
 import '../models/user_model.dart';
 import '../services/user_provider.dart';
@@ -41,13 +42,16 @@ class LoginScreen extends StatelessWidget {
                 // Authenticate user (use await as it's async)
                 User? user = await authService.login(email, password);
                 if (user != null) {
-                  //On successful login, set the global email to unlock access to user-specific screens
+                  // Set the global email in the UserProvider
                   Provider.of<UserProvider>(context, listen: false).setEmail(email);
-                  // On successful login, navigate to ProfileScreen and pass the User object
+
+                  // Navigate to the appropriate screen based on whether the user is an admin
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ProfileScreen(user: user),
+                      builder: (context) => user.isAdmin
+                          ? ProfileScreenAdmin(user: user)  // Navigate to admin profile screen if admin
+                          : ProfileScreenUser(user: user),  // Navigate to user profile screen if not admin
                     ),
                   );
                 } else {

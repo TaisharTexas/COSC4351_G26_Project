@@ -15,6 +15,7 @@ class _EventCreationScreenState extends State<EventCreationScreen> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
+  final TextEditingController addressController = TextEditingController(); // New address field controller
 
   // Date picker for event date
   DateTime selectedEventDate = DateTime.now();
@@ -63,7 +64,11 @@ class _EventCreationScreenState extends State<EventCreationScreen> {
               ),
               TextField(
                 controller: locationController,
-                decoration: InputDecoration(labelText: 'Location'),
+                decoration: InputDecoration(labelText: 'Location (Venue Name)'),
+              ),
+              TextField(
+                controller: addressController,
+                decoration: InputDecoration(labelText: 'Address (Street Address)'), // Address field
               ),
               SizedBox(height: 10),
               // Event Date Picker
@@ -127,6 +132,7 @@ class _EventCreationScreenState extends State<EventCreationScreen> {
                     name: nameController.text,
                     description: descriptionController.text,
                     location: locationController.text,
+                    address: addressController.text, // Save the address field
                     requiredSkills: selectedRequiredSkills,
                     urgency: urgency,
                     eventDate: selectedEventDate,

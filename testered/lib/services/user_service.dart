@@ -36,4 +36,15 @@ class UserService {
       print('Error updating user profile: $error');
     }
   }
+
+  // Fetch all users
+  Future<List<User>> getAllUsers() async {
+    try {
+      // Get all users from the Hive box
+      return userBox.values.toList();
+    } catch (error) {
+      print('Error fetching all users: $error');
+      return [];
+    }
+  }
 }

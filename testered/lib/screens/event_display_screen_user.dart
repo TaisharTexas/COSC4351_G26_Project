@@ -7,12 +7,12 @@ import '../models/event_model.dart';
 import 'package:intl/intl.dart';
 import '../services/user_provider.dart';
 
-class EventDisplayScreen extends StatefulWidget {
+class EventDisplayScreenUser extends StatefulWidget {
   @override
   _EventListScreenState createState() => _EventListScreenState();
 }
 
-class _EventListScreenState extends State<EventDisplayScreen> {
+class _EventListScreenState extends State<EventDisplayScreenUser> {
   List<Event> events = [];
   List<User> volunteers = [];
 
@@ -37,11 +37,6 @@ class _EventListScreenState extends State<EventDisplayScreen> {
     });
   }
 
-  Future<void> _deleteEvent(String eventId) async {
-    await DBHelper().deleteEvent(eventId);
-    _loadEvents();  // Refresh the event list after deletion
-  }
-
   Future<void> _assignVolunteersToEvent(String eventId, List<String> assignedVolunteers) async {
     final event = DBHelper().getEventById(eventId);
     if (event != null) {
@@ -56,9 +51,10 @@ class _EventListScreenState extends State<EventDisplayScreen> {
     }
   }
 
-  // Show a dialog with checkboxes for assigning volunteers
   void _showAssignVolunteersDialog(Event event) {
-    List<String> selectedVolunteers = List.from(event.assignedVolunteers);  // Make a copy to avoid mutating directly
+    final userEmail = Provider.of<UserProvider>(context, listen: false).email;
+    List<String> selectedVolunteers = List.from(event.assignedVolunteers);  // Copy to avoid mutating directly
+    bool isUserAssigned = selectedVolunteers.contains(userEmail);
 
     showDialog(
       context: context,
@@ -66,25 +62,20 @@ class _EventListScreenState extends State<EventDisplayScreen> {
         return StatefulBuilder(  // Use StatefulBuilder to manage dialog state
           builder: (BuildContext context, StateSetter setStateDialog) {
             return AlertDialog(
-              title: Text("Assign Volunteers"),
-              content: SingleChildScrollView(
-                child: Column(
-                  children: volunteers.map((User volunteer) {
-                    return CheckboxListTile(
-                      title: Text(volunteer.fullName),
-                      value: selectedVolunteers.contains(volunteer.email),
-                      onChanged: (bool? value) {
-                        setStateDialog(() {
-                          if (value == true) {
-                            selectedVolunteers.add(volunteer.email);
-                          } else {
-                            selectedVolunteers.remove(volunteer.email);
-                          }
-                        });
-                      },
-                    );
-                  }).toList(),
-                ),
+              title: Text("Assign Yourself to ${event.name}"),
+              content: CheckboxListTile(
+                title: Text(userEmail),
+                value: isUserAssigned,
+                onChanged: (bool? value) {
+                  setStateDialog(() {
+                    if (value == true) {
+                      selectedVolunteers.add(userEmail);  // Add user to selected volunteers
+                    } else {
+                      selectedVolunteers.remove(userEmail);  // Remove user from selected volunteers
+                    }
+                    isUserAssigned = value ?? false;  // Update state
+                  });
+                },
               ),
               actions: [
                 TextButton(
@@ -96,7 +87,7 @@ class _EventListScreenState extends State<EventDisplayScreen> {
                 TextButton(
                   child: Text("Save"),
                   onPressed: () async {
-                    await _assignVolunteersToEvent(event.id, selectedVolunteers);  // Save the assigned volunteers
+                    await _assignVolunteersToEvent(event.id, selectedVolunteers);  // Save the selected volunteers
                     Navigator.of(context).pop();  // Close the dialog
                   },
                 ),
@@ -145,6 +136,24 @@ class _EventListScreenState extends State<EventDisplayScreen> {
                     ],
                   ),
 
+                  // Location and Address
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Location: ${event.location}',
+                          style: TextStyle(fontSize: 14),
+                        ),
+                        Text(
+                          'Address: ${event.address}',  // Display address here
+                          style: TextStyle(fontSize: 14),
+                        ),
+                      ],
+                    ),
+                  ),
+
                   // Skills
                   Padding(
                     padding: const EdgeInsets.only(top: 8.0),
@@ -174,25 +183,12 @@ class _EventListScreenState extends State<EventDisplayScreen> {
                         style: TextStyle(color: Colors.red),
                       ),
 
-                      // Action Buttons (Delete, Assign Volunteers)
-                      Row(
-                        children: [
-                          // Delete Button
-                          IconButton(
-                            icon: Icon(Icons.delete, color: Colors.red),
-                            onPressed: () async {
-                              await _deleteEvent(event.id);  // Delete event
-                            },
-                          ),
-
-                          // Assign Volunteers Button
-                          IconButton(
-                            icon: Icon(Icons.person_add),
-                            onPressed: () {
-                              _showAssignVolunteersDialog(event);  // Show dialog to assign volunteers
-                            },
-                          ),
-                        ],
+                      // Action Buttons (Assign Volunteers)
+                      IconButton(
+                        icon: Icon(Icons.person_add),
+                        onPressed: () {
+                          _showAssignVolunteersDialog(event);  // Show dialog to assign volunteers
+                        },
                       ),
                     ],
                   ),
