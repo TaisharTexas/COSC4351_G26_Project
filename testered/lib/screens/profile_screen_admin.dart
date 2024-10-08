@@ -193,27 +193,28 @@ class _ProfileScreenAdminState extends State<ProfileScreenAdmin> {
 
               SizedBox(height: 20),
 
-              // Admin Toggle Switch
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Admin Status",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  Switch(
-                    value: selectedUser?.isAdmin ?? false,
-                    onChanged: (bool value) {
-                      setState(() {
-                        if (selectedUser != null) {
-                          selectedUser!.isAdmin = value;
-                          userService.updateUserProfile(selectedUser!);
-                        }
-                      });
-                    },
-                  ),
-                ],
-              ),
+              // Conditionally show Admin Toggle Switch
+              if (selectedUser?.email != userEmail)  // Hide the toggle when the admin is viewing their own profile
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Admin Status",
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    Switch(
+                      value: selectedUser?.isAdmin ?? false,
+                      onChanged: (bool value) {
+                        setState(() {
+                          if (selectedUser != null) {
+                            selectedUser!.isAdmin = value;
+                            userService.updateUserProfile(selectedUser!);
+                          }
+                        });
+                      },
+                    ),
+                  ],
+                ),
 
               SizedBox(height: 20),
 

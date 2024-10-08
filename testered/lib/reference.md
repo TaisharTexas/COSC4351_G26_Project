@@ -41,8 +41,4 @@ User:
 - recommended events (show events best fitted for them)
 
 Admin:
-- self profile (with dropdown to switch to see/edit other profiles), if admin show admin flag toggle
-- all events (full edit ability)
-- create events
 - volunteer-event match (all)
--

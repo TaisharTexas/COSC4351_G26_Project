@@ -214,9 +214,21 @@ class _EventListScreenState extends State<EventDisplayScreenAdmin> {
                     event.requiredSkills = skillsController.text.split(',').map((e) => e.trim()).toList();
                     event.eventDate = selectedDate;
 
-                    await DBHelper().updateEvent(event);  // Save changes to the database
-                    Navigator.of(context).pop();  // Close the dialog
-                    _loadEvents();  // Refresh the event list
+                    // Await database update and check if it's successful
+                    await DBHelper().updateEvent(event);
+
+                    // Close the dialog after successful save
+                    Navigator.of(context).pop();
+
+                    // Refresh the event list after updating
+                    setState(() {
+                      _loadEvents();  // Refresh the list of events after saving
+                    });
+
+                    // Show a confirmation message
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Event updated successfully!')),
+                    );
                   },
                 ),
               ],
