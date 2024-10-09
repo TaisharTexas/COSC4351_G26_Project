@@ -20,24 +20,18 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final TextEditingController zipCodeController = TextEditingController();
   final TextEditingController preferencesController = TextEditingController();
 
-  bool filledOut = true;
-  bool showPas = true;
-  bool showPas2 = true;
+  bool showPas = false;
+  bool showPas2 = false;
+  bool hostSelected = false;
+  bool volSelected = false;
+
+  int accType = -1;
+  
   final TextEditingController email = TextEditingController();
   final TextEditingController pass = TextEditingController();
   final TextEditingController passVerif = TextEditingController();
 
   
-  void unhidePassword(int i){ //Hides and reveals the password so you can check it 
-    setState(() {
-      if(i == 1){
-        showPas = !showPas;
-      }
-      else{
-        showPas2 = !showPas2;
-      }
-    });
-  }
 
   // States for dropdowns and multi-selects
   String selectedState = 'notSet';  // Default state selection
@@ -119,6 +113,33 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
+                          Text("Create your account!"),
+                          Row( //Buttons for your account type
+                            children: [
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(backgroundColor: hostSelected? const Color.fromARGB(255, 48, 38, 159) : null,),
+                                child:Text("HOST"), 
+                                onPressed:() {
+                                setState(() {
+                                  hostSelected = !hostSelected;
+                                  volSelected = false;
+                                });  
+                                accType = 1; 
+                                },
+                              ),
+                              ElevatedButton(
+                                child:Text("VOLUNTEER"), 
+                                style: ElevatedButton.styleFrom(backgroundColor: volSelected? const Color.fromARGB(255, 48, 38, 159) : null,),
+                                onPressed:() {
+                                setState(() {
+                                  volSelected = !volSelected;
+                                  hostSelected = false;
+                                });  
+                                accType = 0; 
+                                },
+                              ),
+                            ]
+                          ),
                           TextField(
                             controller: nameController,
                             decoration: InputDecoration(labelText: 'Name'),
@@ -129,16 +150,42 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             decoration: InputDecoration(labelText: 'Email'),
                           ),
                           // Password input field
-                          TextField(
-                            controller: passwordController,
-                            decoration: InputDecoration(labelText: 'Password'),
-                            obscureText: true,
+                          Stack(
+                            children: [
+                              TextField(
+                                controller: passwordController,
+                                decoration: InputDecoration(labelText: 'Password'),
+                                obscureText: !showPas,
+                              ),
+                              Positioned(
+                                right: 0,
+                                child: IconButton(
+                                  onPressed:(){setState(() {
+                                    showPas = !showPas;
+                                  }); }, 
+                                  icon: Icon(showPas? Icons.visibility: Icons.visibility_off)
+                                )
+                              )
+                            ], //Children
                           ),
                           // Confirm Password input field
-                          TextField(
-                            controller: confirmPasswordController,
-                            decoration: InputDecoration(labelText: 'Confirm Password'),
-                            obscureText: true,
+                          Stack(
+                            children: [
+                              TextField(
+                                controller: confirmPasswordController,
+                                decoration: InputDecoration(labelText: 'Confirm Password'),
+                                obscureText: !showPas2,
+                              ),
+                               Positioned(
+                                right: 0,
+                                child: IconButton(
+                                  onPressed:(){setState(() {
+                                    showPas2 = !showPas2;
+                                  }); }, 
+                                  icon: Icon(showPas2? Icons.visibility: Icons.visibility_off)
+                                )
+                              )
+                            ],
                           ),
                           // Address 1
                           TextField(
@@ -229,7 +276,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           // Register button
                           ElevatedButton(
                             onPressed: () async {
-                              if (passwordController.text == confirmPasswordController.text) {
+                              if (passwordController.text == confirmPasswordController.text) { //Checks if passwords match
                                 bool success = await authService.registerUser(
                                     emailController.text,
                                     passwordController.text,
@@ -240,7 +287,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                     zipCodeController.text,
                                     selectedState,
                                     selectedSkills,
-                          
+                                    accType,
                                   );
                                 if (success) {
                                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User registered successfully!')));

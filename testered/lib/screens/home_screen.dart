@@ -22,17 +22,29 @@ class _MyHomePageState extends State<MyHomePage> {
   User? loggedInUser; //User logged in 
   static const double buttonPaddingRight = 25.0; 
   String userEmail = ''; //User email for the welcome message 
+  int accType = -1;
 
   void login(User u) {
     setState(() {
       loggedIn = Provider.of<UserProvider>(context, listen: false).loggedIn;
       loggedInUser = u;
       userEmail = Provider.of<UserProvider>(context, listen: false).email;
-      
+      accType = Provider.of<UserProvider>(context, listen: false).accountType;
     });
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('User ${loggedInUser?.email} succesfully logged in!')),
     );
+  }
+
+  String getAccType(int i){
+    switch (i) {
+      case 0:
+        return "VOLUNTEER";
+      case 1:
+        return "HOST";
+      default:
+        return "???";
+    }
   }
 
   @override
@@ -132,9 +144,10 @@ class _MyHomePageState extends State<MyHomePage> {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[  
               Image.asset('images/mainPageBanner.jpg', fit: BoxFit.fitWidth, height: 690,),
+              Text("WELCOME USER OF LEVEL ${getAccType(accType)}")
           ],
         ),
-        ),
+        )
       ),
     );
   }

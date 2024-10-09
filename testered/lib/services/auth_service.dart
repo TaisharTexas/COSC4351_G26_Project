@@ -12,7 +12,7 @@ class AuthService {
   }
 
   // Register a new user
-  Future<bool> registerUser(String email, String password, String name, String address1, String address2, String city, String zipcode, String state, List<String> skills) async {
+  Future<bool> registerUser(String email, String password, String name, String address1, String address2, String city, String zipcode, String state, List<String> skills, int accTpye) async {
     // Check if the user already exists based on email
     User? existingUser = dbHelper.getUserByEmail(email);
 
@@ -30,10 +30,8 @@ class AuthService {
       city: city,
       zipCode: zipcode,
       state: state,
-      skills: skills
-
-
-
+      skills: skills,
+      accType: accTpye,
     );
 
     // Insert the new user into the Hive box using DBHelper

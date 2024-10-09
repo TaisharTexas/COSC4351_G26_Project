@@ -55,7 +55,7 @@ class CustomNavBar extends StatelessWidget implements PreferredSizeWidget {
               Navigator.pushNamed(context, '/eventList'); // Navigate to Event List screen
             },
             child: Text(
-              'Events',
+              'Manage Events',
               style: TextStyle(color: Colors.black),
             ),
           ),
