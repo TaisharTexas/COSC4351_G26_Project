@@ -57,7 +57,7 @@ class _EventListScreenState extends State<EventDisplayScreenAdmin> {
   }
 
   // Show a dialog with checkboxes for assigning volunteers
-  void _showAssignVolunteersDialog(Event event) {
+void _showAssignVolunteersDialog(Event event) {
     List<String> selectedVolunteers = List.from(event.assignedVolunteers);  // Make a copy to avoid mutating directly
 
     showDialog(
@@ -110,134 +110,138 @@ class _EventListScreenState extends State<EventDisplayScreenAdmin> {
 
   // Show a dialog to edit event details
 // Show a dialog to edit event details
-  void _showEditEventDialog(Event event) {
-    // Controllers for editing event fields
-    TextEditingController nameController = TextEditingController(text: event.name);
-    TextEditingController descriptionController = TextEditingController(text: event.description);
-    TextEditingController locationController = TextEditingController(text: event.location);
-    TextEditingController addressController = TextEditingController(text: event.address);  // New address field
-    TextEditingController urgencyController = TextEditingController(text: event.urgency);
-    TextEditingController skillsController = TextEditingController(text: event.requiredSkills.join(', '));
-    DateTime selectedDate = event.eventDate;
+void _showEditEventDialog(Event event) {
+  // Controllers for editing event fields
+  TextEditingController nameController = TextEditingController(text: event.name);
+  TextEditingController descriptionController = TextEditingController(text: event.description);
+  TextEditingController locationController = TextEditingController(text: event.location);
+  TextEditingController addressController = TextEditingController(text: event.address);
+  TextEditingController urgencyController = TextEditingController(text: event.urgency);
+  TextEditingController skillsController = TextEditingController(text: event.requiredSkills.join(', ')); // Convert list to comma-separated string
+  DateTime selectedDate = event.eventDate;
 
-    // Show dialog for editing the event
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setStateDialog) {
-            return AlertDialog(
-              title: Text("Edit Event"),
-              content: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    // Event Name
-                    TextField(
-                      controller: nameController,
-                      decoration: InputDecoration(labelText: 'Event Name'),
-                    ),
-                    SizedBox(height: 10),
+  // Show dialog to edit the event
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return StatefulBuilder(
+        builder: (BuildContext context, StateSetter setStateDialog) {
+          return AlertDialog(
+            title: Text("Edit Event Details"),
+            content: SingleChildScrollView(
+              child: Column(
+                children: [
+                  // Event Name
+                  TextField(
+                    controller: nameController,
+                    decoration: InputDecoration(labelText: 'Event Name'),
+                  ),
+                  SizedBox(height: 10),
 
-                    // Event Description
-                    TextField(
-                      controller: descriptionController,
-                      decoration: InputDecoration(labelText: 'Description'),
-                    ),
-                    SizedBox(height: 10),
+                  // Event Description
+                  TextField(
+                    controller: descriptionController,
+                    decoration: InputDecoration(labelText: 'Description'),
+                  ),
+                  SizedBox(height: 10),
 
-                    // Event Location
-                    TextField(
-                      controller: locationController,
-                      decoration: InputDecoration(labelText: 'Location'),
-                    ),
-                    SizedBox(height: 10),
+                  // Event Location
+                  TextField(
+                    controller: locationController,
+                    decoration: InputDecoration(labelText: 'Location'),
+                  ),
+                  SizedBox(height: 10),
 
-                    // Event Address (New)
-                    TextField(
-                      controller: addressController,
-                      decoration: InputDecoration(labelText: 'Address'),
-                    ),
-                    SizedBox(height: 10),
+                  // Event Address
+                  TextField(
+                    controller: addressController,
+                    decoration: InputDecoration(labelText: 'Address'),
+                  ),
+                  SizedBox(height: 10),
 
-                    // Event Urgency
-                    TextField(
-                      controller: urgencyController,
-                      decoration: InputDecoration(labelText: 'Urgency'),
-                    ),
-                    SizedBox(height: 10),
+                  // Event Urgency
+                  TextField(
+                    controller: urgencyController,
+                    decoration: InputDecoration(labelText: 'Urgency'),
+                  ),
+                  SizedBox(height: 10),
 
-                    // Required Skills
-                    TextField(
-                      controller: skillsController,
-                      decoration: InputDecoration(labelText: 'Required Skills (comma-separated)'),
-                    ),
-                    SizedBox(height: 10),
+                  // Required Skills
+                  TextField(
+                    controller: skillsController,
+                    decoration: InputDecoration(labelText: 'Required Skills (comma-separated)'),
+                  ),
+                  SizedBox(height: 10),
 
-                    // Event Date Picker
-                    TextButton(
-                      onPressed: () async {
-                        final DateTime? picked = await showDatePicker(
-                          context: context,
-                          initialDate: selectedDate,
-                          firstDate: DateTime(2000),
-                          lastDate: DateTime(2100),
-                        );
-                        if (picked != null && picked != selectedDate) {
-                          setStateDialog(() {
-                            selectedDate = picked;
-                          });
-                        }
-                      },
-                      child: Text(
-                        'Event Date: ${DateFormat('MM/dd/yyyy').format(selectedDate)}',
-                      ),
+                  // Event Date Picker
+                  TextButton(
+                    onPressed: () async {
+                      final DateTime? picked = await showDatePicker(
+                        context: context,
+                        initialDate: selectedDate,
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime(2100),
+                      );
+                      if (picked != null && picked != selectedDate) {
+                        setStateDialog(() {
+                          selectedDate = picked;
+                        });
+                      }
+                    },
+                    child: Text(
+                      'Event Date: ${DateFormat('MM/dd/yyyy').format(selectedDate)}',
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              actions: [
-                TextButton(
-                  child: Text("Cancel"),
-                  onPressed: () {
-                    Navigator.of(context).pop();  // Close the dialog without saving
-                  },
-                ),
-                TextButton(
-                  child: Text("Save"),
-                  onPressed: () async {
-                    // Update event details with new values
-                    event.name = nameController.text;
-                    event.description = descriptionController.text;
-                    event.location = locationController.text;
-                    event.address = addressController.text;  // Save the updated address
-                    event.urgency = urgencyController.text;
-                    event.requiredSkills = skillsController.text.split(',').map((e) => e.trim()).toList();
-                    event.eventDate = selectedDate;
+            ),
+            actions: [
+              TextButton(
+                child: Text("Cancel"),
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog without saving
+                },
+              ),
+              TextButton(
+                child: Text("Save"),
+                onPressed: () async {
+                  // Create a new event object with updated details
+                  Event updatedEvent = Event(
+                    id: event.id,  // Retain the original event ID
+                    name: nameController.text,
+                    description: descriptionController.text,
+                    location: locationController.text,
+                    address: addressController.text,
+                    urgency: urgencyController.text,
+                    requiredSkills: skillsController.text.split(',').map((e) => e.trim()).toList(), // Convert back to List
+                    eventDate: selectedDate,
+                    assignedVolunteers: event.assignedVolunteers,  // Retain the assigned volunteers
+                  );
 
-                    // Await database update and check if it's successful
-                    await DBHelper().updateEvent(event);
+                  // Overwrite the event in the database
+                  await DBHelper().updateEvent(updatedEvent);
 
-                    // Close the dialog after successful save
-                    Navigator.of(context).pop();
+                  // Refresh the events list after updating
+                  setState(() {
+                    _loadEvents();
+                  });
 
-                    // Refresh the event list after updating
-                    setState(() {
-                      _loadEvents();  // Refresh the list of events after saving
-                    });
+                  // Close the dialog
+                  Navigator.of(context).pop();
 
-                    // Show a confirmation message
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Event updated successfully!')),
-                    );
-                  },
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
+                  // Show a confirmation message
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Event updated successfully!')),
+                  );
+                },
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
+}
 
   @override
   Widget build(BuildContext context) {

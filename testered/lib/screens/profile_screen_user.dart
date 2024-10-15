@@ -63,6 +63,11 @@ class _ProfileScreenUserState extends State<ProfileScreenUser> {
 
     // Load user's volunteer history
     _loadVolunteerHistory();
+
+    // Check for upcoming events after the widget is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkUpcomingEvents();
+    });
   }
 
   // Function to load user's volunteer history based on their past events
@@ -77,6 +82,61 @@ class _ProfileScreenUserState extends State<ProfileScreenUser> {
     setState(() {
       volunteerHistory = events;
     });
+  }
+
+  // Function to check for upcoming events within the next 5 days
+  void _checkUpcomingEvents() async {
+    final DBHelper dbHelper = DBHelper();
+    final now = DateTime.now();
+
+    // Fetch all events and filter by those assigned to the current user and happening in the next 5 days
+    List<Event> allEvents = dbHelper.getAllEvents();
+    List<Event> upcomingEvents = allEvents.where((event) {
+      bool isUpcoming = event.eventDate.isAfter(now) && event.eventDate.isBefore(now.add(Duration(days: 5)));
+      bool isUserAssigned = event.assignedVolunteers.contains(widget.user.email);
+      return isUpcoming && isUserAssigned;
+    }).toList();
+
+    if (upcomingEvents.isNotEmpty) {
+      // Access the provider to ensure we show the notification only once
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      if (!userProvider.hasShownUpcomingEventsNotification) {
+        // Show tray notification with the upcoming events
+        _showUpcomingEventsTray(upcomingEvents);
+
+        // Mark the notification as shown to avoid showing it again
+        userProvider.setHasShownUpcomingEventsNotification(true);
+      }
+    }
+  }
+
+  // Method to show a tray-style notification at the bottom of the screen for upcoming events
+  void _showUpcomingEventsTray(List<Event> upcomingEvents) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Upcoming Events in the next 5 days:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            ...upcomingEvents.map((event) {
+              return Text('${event.name} on ${DateFormat('MM/dd/yyyy').format(event.eventDate)}');
+            }).toList(),
+          ],
+        ),
+        duration: Duration(seconds: 10), // Display the tray for 10 seconds
+        action: SnackBarAction(
+          label: 'Close',
+          onPressed: () {
+            // User clicked on the close action.
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          },
+        ),
+      ),
+    );
   }
 
   // Function to display DatePicker and add selected dates to the list

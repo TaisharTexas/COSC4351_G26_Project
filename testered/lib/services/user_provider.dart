@@ -5,8 +5,16 @@ class UserProvider with ChangeNotifier {
 
   String get email => _email;
 
+  bool _hasShownUpcomingEventsNotification = false;
+  bool get hasShownUpcomingEventsNotification => _hasShownUpcomingEventsNotification;
+
   void setEmail(String email) {
     _email = email;
     notifyListeners();  // Notifies all listeners that the email has changed
+  }
+
+  void setHasShownUpcomingEventsNotification(bool shown) {
+    _hasShownUpcomingEventsNotification = shown;
+    notifyListeners();
   }
 }

@@ -37,7 +37,6 @@ class _ProfileScreenAdminState extends State<ProfileScreenAdmin> {
 
   List<Event> volunteerHistory = []; // List to store past events
 
-  // Hardcoded lists for dropdowns (these would typically come from a service or API)
   final List<String> states = [
     'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
     'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
@@ -53,6 +52,8 @@ class _ProfileScreenAdminState extends State<ProfileScreenAdmin> {
     super.initState();
     // Load the list of users and set the selected user
     _loadUsers();
+    // Check for upcoming events when the screen loads
+    _checkUpcomingEvents();
   }
 
   Future<void> _loadUsers() async {
@@ -94,27 +95,45 @@ class _ProfileScreenAdminState extends State<ProfileScreenAdmin> {
     });
   }
 
-  // Function to display DatePicker and add selected dates to the list
-  Future<void> _pickAvailabilityDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-    );
+  // Check for upcoming events within the next 5 days
+  void _checkUpcomingEvents() async {
+    final DBHelper dbHelper = DBHelper();
+    DateTime now = DateTime.now();
 
-    if (picked != null && !selectedAvailability.contains(picked)) {
-      setState(() {
-        selectedAvailability.add(picked);
-      });
+    // Fetch all events and filter by those assigned to the current user and happening in the next 5 days
+    List<Event> allEvents = dbHelper.getAllEvents();
+    List<Event> upcomingEvents = allEvents.where((event) {
+      bool isUpcoming = event.eventDate.isAfter(now) && event.eventDate.isBefore(now.add(Duration(days: 5)));
+      bool isUserAssigned = event.assignedVolunteers.contains(widget.user.email);
+      return isUpcoming && isUserAssigned;
+    }).toList();
+
+    if (upcomingEvents.isNotEmpty) {
+      // Show the tray notification using a SnackBar
+      _showUpcomingEventsTray(upcomingEvents);
     }
   }
 
-  // Function to remove a selected date
-  void _removeAvailabilityDate(DateTime date) {
-    setState(() {
-      selectedAvailability.remove(date);
-    });
+  // Function to show upcoming events in a tray (SnackBar) at the bottom
+  void _showUpcomingEventsTray(List<Event> upcomingEvents) {
+    final eventNames = upcomingEvents.map((e) => e.name).join(', ');
+    final eventCount = upcomingEvents.length;
+    final message = 'You have $eventCount upcoming event(s): $eventNames';
+
+    // Show SnackBar as a tray notification
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: Duration(seconds: 5),
+        action: SnackBarAction(
+          label: 'View',
+          onPressed: () {
+            // Action to view events (could navigate to the events page)
+            Navigator.pushNamed(context, '/eventListAdmin');
+          },
+        ),
+      ),
+    );
   }
 
   // Save the selected user's profile
@@ -137,6 +156,29 @@ class _ProfileScreenAdminState extends State<ProfileScreenAdmin> {
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Profile updated successfully!')));
     }
+  }
+
+  // Function to display DatePicker and add selected dates to the list
+  Future<void> _pickAvailabilityDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+
+    if (picked != null && !selectedAvailability.contains(picked)) {
+      setState(() {
+        selectedAvailability.add(picked);
+      });
+    }
+  }
+
+  // Function to remove a selected date
+  void _removeAvailabilityDate(DateTime date) {
+    setState(() {
+      selectedAvailability.remove(date);
+    });
   }
 
   @override
