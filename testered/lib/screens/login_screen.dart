@@ -139,6 +139,7 @@ class _LoginScreen extends State<LoginScreen>{
                         height: 30,
                         color: Colors.white.withOpacity(.7),                            
                       ),
+                      // Login button
                       ElevatedButton(
                         onPressed: () async {
                           String email = emailController.text;
@@ -146,20 +147,26 @@ class _LoginScreen extends State<LoginScreen>{
                           // Authenticate user (use await as it's async)
                           User? user = await authService.login(email, password);
                           if (user != null) {
-                            //On successful login, set the global email to unlock access to user-specific screens
+                            // Set the global email in the UserProvider
                             Provider.of<UserProvider>(context, listen: false).setEmail(email);
-                            // Provider.of<UserProvider>(context, listen: false).logIn();
-                            // Provider.of<UserProvider>(context, listen: false).setAccountType(user.accType);
-                            // On successful login, navigate to ProfileScreen and pass the User object
-                            Navigator.pop(context, user);
-                           } else {
+
+                            // Navigate to the appropriate screen based on whether the user is an admin
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => user.isAdmin
+                                    ? ProfileScreenAdmin(user: user)  // Navigate to admin profile screen if admin
+                                    : ProfileScreenUser(user: user),  // Navigate to user profile screen if not admin
+                              ),
+                            );
+                          } else {
                             // Display error if login fails
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text('Invalid login credentials')),
                             );
                           }
                         },
-                        child: const Text('Login')
+                        child: Text('Login'),
                       ),
                       Container(
                         width: 400,

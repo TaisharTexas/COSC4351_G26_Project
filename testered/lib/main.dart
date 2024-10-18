@@ -13,6 +13,7 @@ import 'package:testered/services/db_helper.dart';
 import 'package:provider/provider.dart';
 import 'models/event_model.dart';
 import 'services/user_provider.dart';
+import 'screens/home_screen.dart';
 
 import 'models/user_model.dart';
 
@@ -55,8 +56,9 @@ class VolunteerApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      initialRoute: '/login',
+      initialRoute: '/landing',
       routes: {
+        '/landing': (context) => HomeScreen(title: '',),
         '/login': (context) => LoginScreen(),
         '/register': (context) => RegistrationScreen(),
         '/eventListAdmin': (context) => EventDisplayScreenAdmin(),

@@ -11,85 +11,73 @@ import 'package:testered/screens/home_screen.dart';
 import '../services/db_helper.dart';
 import '../models/event_model.dart';
 
-class CustomNavBar extends StatelessWidget implements PreferredSizeWidget {
+class CustomNavBar extends StatefulWidget implements PreferredSizeWidget {
   final String email;
   static const double buttonPaddingRight = 25.0;
-  bool notifsOpen = false;
-  OverlayEntry? _overlayEntry;
-  List<Event> notifications = []; // Initialize here
 
   CustomNavBar({required this.email});
 
-  void _showNotifications(BuildContext context, List<Event> notifications){
-    final RenderBox renderBox = context.findRenderObject() as RenderBox;
-    final size = renderBox.size;
-    final offset = renderBox.localToGlobal(Offset.zero);
+  @override
+  _CustomNavBarState createState() => _CustomNavBarState();
 
-    _overlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
-        top: offset.dy + size.height,
-        left: (offset.dx + 550 + size.width / 2),
-        width: 200,
-        child: Material(
-          elevation: 4.0,
-          child: Container(
-            height: 250,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Column(
-              children: [
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: notifications.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        title: Text(notifications[index].name),
-                        onTap: () {
-                        },
-                        trailing: IconButton(
-                          icon: Icon(Icons.clear),
-                          onPressed: () {
-                            setState(() {
-                              notifications.removeAt(index);
-                              _updateOverlay();
-                            });
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                Divider(),
-                TextButton(
-                  onPressed: () {
-                    setState(() {
-                      notifications.clear();
-                      _removeOverlay();
-                      _updateOverlay();
-                    });
-                  },
-                  child: Text('Clear All'),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-    Overlay.of(context)?.insert(_overlayEntry!);
+  @override
+  Size get preferredSize => Size.fromHeight(kToolbarHeight); // Standard height for AppBar
+}
+
+class _CustomNavBarState extends State<CustomNavBar> {
+  List<Event> _upcomingEvents = [];
+  bool _hasNotifications = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Call the method to check for upcoming events when the navbar is initialized
+    _checkUpcomingEvents();
   }
-  void _updateOverlay() {
-    // If the overlay is already displayed, update it
-    if (_overlayEntry != null) {
-      _overlayEntry!.markNeedsBuild(); // Rebuild the overlay to reflect changes
+
+  // Function to check for upcoming events within the next 5 days
+  void _checkUpcomingEvents() async {
+    final DBHelper dbHelper = DBHelper();
+    final now = DateTime.now();
+
+    // Fetch all events and filter by those assigned to the current user and happening in the next 5 days
+    List<Event> allEvents = await dbHelper.getAllEvents();
+    List<Event> upcomingEvents = allEvents.where((event) {
+      bool isUpcoming = event.eventDate.isAfter(now) && event.eventDate.isBefore(now.add(Duration(days: 5)));
+      bool isUserAssigned = event.assignedVolunteers.contains(widget.email);  // Use the email from widget
+      return isUpcoming && isUserAssigned;
+    }).toList();
+
+    if (upcomingEvents.isNotEmpty) {
+      setState(() {
+        _upcomingEvents = upcomingEvents;
+        _hasNotifications = true;  // Set to true if there are upcoming events
+      });
     }
   }
 
-  void _removeOverlay() {
-    _overlayEntry?.remove();
-    _overlayEntry = null;
+  // Dropdown to show upcoming events when notification button is pressed
+  void _showNotificationsDropdown(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return ListView(
+          padding: EdgeInsets.all(10.0),
+          children: _upcomingEvents.isNotEmpty
+              ? _upcomingEvents.map((event) {
+            return ListTile(
+              title: Text(event.name),
+              subtitle: Text('Date: ${DateFormat('MM/dd/yyyy').format(event.eventDate)}'),
+            );
+          }).toList()
+              : [
+            ListTile(
+              title: Text("No upcoming events"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -100,19 +88,14 @@ class CustomNavBar extends StatelessWidget implements PreferredSizeWidget {
     final User? currentUser = userService.getUserByEmail(userEmail);
 
     final titleText = currentUser != null && currentUser.isAdmin
-        ? 'Welcome, $email (admin)'
-        : 'Welcome, $email';
-
-    // Check for upcoming events and show notification popup on first login
-    // if (currentUser != null) {
-    //   _checkUpcomingEvents(context, currentUser);
-    // }
+        ? 'Welcome, ${widget.email} (admin)'
+        : 'Welcome, ${widget.email}';
 
     return AppBar(
       title: Text(titleText),
       actions: [
         Padding(
-          padding: const EdgeInsets.only(right: buttonPaddingRight),
+          padding: const EdgeInsets.only(right: CustomNavBar.buttonPaddingRight),
           child: TextButton(
             onPressed: () {
               if (currentUser != null) {
@@ -125,7 +108,7 @@ class CustomNavBar extends StatelessWidget implements PreferredSizeWidget {
                   ),
                 );
               } else {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User $email not found')));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User ${widget.email} not found')));
               }
             },
             child: Text(
@@ -137,7 +120,7 @@ class CustomNavBar extends StatelessWidget implements PreferredSizeWidget {
 
         // Event button
         Padding(
-          padding: const EdgeInsets.only(right: buttonPaddingRight),
+          padding: const EdgeInsets.only(right: CustomNavBar.buttonPaddingRight),
           child: TextButton(
             onPressed: () {
               if (currentUser != null && currentUser.isAdmin) {
@@ -156,7 +139,7 @@ class CustomNavBar extends StatelessWidget implements PreferredSizeWidget {
         // Conditionally show "Create Event" button only if the user is an admin
         if (currentUser != null && currentUser.isAdmin)
           Padding(
-            padding: const EdgeInsets.only(right: buttonPaddingRight),
+            padding: const EdgeInsets.only(right: CustomNavBar.buttonPaddingRight),
             child: TextButton(
               onPressed: () {
                 Navigator.pushNamed(context, '/eventCreate');
@@ -170,7 +153,7 @@ class CustomNavBar extends StatelessWidget implements PreferredSizeWidget {
 
         // Recommended Events button
         Padding(
-          padding: const EdgeInsets.only(right: buttonPaddingRight),
+          padding: const EdgeInsets.only(right: CustomNavBar.buttonPaddingRight),
           child: TextButton(
             onPressed: () {
               if (currentUser != null && currentUser.isAdmin) {
@@ -185,73 +168,49 @@ class CustomNavBar extends StatelessWidget implements PreferredSizeWidget {
             ),
           ),
         ),
-        Padding(padding: const EdgeInsets.only(right: buttonPaddingRight),
+
+        // Notifications Button with Indicator if there are upcoming events
+        Padding(
+          padding: const EdgeInsets.only(right: CustomNavBar.buttonPaddingRight),
           child: Stack(
-            children: <Widget>[
+            children: [
               IconButton(
-                icon: Stack(
-                  children: <Widget>[
-                    Icon(Icons.notifications, size: 30.0), //Bell for notifs
-                    if (notifications.isNotEmpty)
-                      Positioned(
-                        right: 0,
-                        top: 0,
-                        child: Container(
-                          padding: EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          constraints: BoxConstraints(
-                            minWidth: 20,
-                            minHeight: 20,
-                          ),
-                          child: Text(
-                            '${notifications.length}',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
+                icon: Icon(Icons.notifications, color: Colors.black),
                 onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: Text("Notifications"),
-                        content: SingleChildScrollView(
-                          child: ListBody(
-                            children: notifications.map((notification) {
-                              return ListTile(
-                                title: Text(notification.name),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                        actions: <Widget>[
-                          TextButton(
-                            child: Text("Close"),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                        ],
-                      );
-                    },
-                  );
+                  _showNotificationsDropdown(context);  // Show dropdown with upcoming events
                 },
-              )
+              ),
+              if (_hasNotifications)  // Show the indicator if there are notifications
+                Positioned(
+                  right: 12,
+                  top: 12,
+                  child: Container(
+                    padding: EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    constraints: BoxConstraints(
+                      minWidth: 12,
+                      minHeight: 12,
+                    ),
+                    child: Text(
+                      '!',  // Customize the badge content (could be number of notifications)
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 8,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
-        // LOGOUT BUTTON
+
+        // Logout button
         Padding(
-          padding: const EdgeInsets.only(right: buttonPaddingRight),
+          padding: const EdgeInsets.only(right: CustomNavBar.buttonPaddingRight),
           child: IconButton(
             icon: Icon(Icons.logout, color: Colors.black),
             onPressed: () {
@@ -268,65 +227,4 @@ class CustomNavBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: Colors.white,
     );
   }
-
-  @override
-  Size get preferredSize => Size.fromHeight(kToolbarHeight); // Standard height for AppBar
-
-  // // Method to check for upcoming events within the next 5 days
-  // void _checkUpcomingEvents(BuildContext context, User currentUser) async {
-  //   final DBHelper dbHelper = DBHelper();
-  //
-  //   // Fetch all events and filter by those assigned to the current user and happening in the next 5 days
-  //   List<Event> allEvents = dbHelper.getAllEvents();
-  //   DateTime now = DateTime.now();
-  //
-  //   List<Event> upcomingEvents = allEvents.where((event) {
-  //     bool isUpcoming = event.eventDate.isAfter(now) && event.eventDate.isBefore(now.add(Duration(days: 5)));
-  //     bool isUserAssigned = event.assignedVolunteers.contains(currentUser.email);
-  //     return isUpcoming && isUserAssigned;
-  //   }).toList();
-  //
-  //   if (upcomingEvents.isNotEmpty) {
-  //     // Check if notification has already been shown
-  //     final userProvider = Provider.of<UserProvider>(context, listen: false);
-  //     if (!userProvider.hasShownUpcomingEventsNotification) {
-  //       // Show popup with the upcoming events
-  //       _showUpcomingEventsNotification(context, upcomingEvents);
-  //
-  //       // Mark the notification as shown to avoid showing it again
-  //       userProvider.setHasShownUpcomingEventsNotification(true);
-  //     }
-  //   }
-  // }
-
-  // // Method to show a notification popup with the upcoming events
-  // void _showUpcomingEventsNotification(BuildContext context, List<Event> upcomingEvents) {
-  //   showDialog(
-  //     context: context,
-  //     barrierDismissible: true,  // Allow dismissing the dialog by tapping outside
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: Text("Upcoming Events"),
-  //         content: SingleChildScrollView(
-  //           child: Column(
-  //             children: upcomingEvents.map((event) {
-  //               return ListTile(
-  //                 title: Text(event.name),
-  //                 subtitle: Text('Date: ${DateFormat('MM/dd/yyyy').format(event.eventDate)}'),
-  //               );
-  //             }).toList(),
-  //           ),
-  //         ),
-  //         actions: [
-  //           TextButton(
-  //             child: Text("Close"),
-  //             onPressed: () {
-  //               Navigator.of(context, rootNavigator: true).pop();  // Ensure we pop the dialog properly
-  //             },
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
 }
