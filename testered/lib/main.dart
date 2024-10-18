@@ -15,6 +15,7 @@ import 'package:provider/provider.dart';
 import 'models/event_model.dart';
 import 'services/user_provider.dart';
 import 'package:testered/screens/home_screen.dart';
+import 'package:testered/services/notification_provider.dart';
 
 import 'models/user_model.dart';
 
@@ -42,7 +43,9 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => UserProvider()), // Provide the UserProvider globally
+        ChangeNotifierProvider(create: (_) => NotificationProvider()), // Provide the Notif one 
       ],
+
       child: VolunteerApp(),
     ),
   );

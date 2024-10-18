@@ -49,10 +49,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   String? emailErrorText;
   String? passwordErrorText;
 
-  //error texts
-  String? emailErrorText;
-  String? passwordErrorText;
-
   // Fetch all users from the database on screen load
   @override
   void initState() {
@@ -66,6 +62,22 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     setState(() {
       existingUsers = users;  // Update the list of existing users
     });
+  }
+
+  // Function to validate email format
+  bool _isEmailValid(String email) {
+    final RegExp emailRegExp = RegExp(
+        r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    );
+    return emailRegExp.hasMatch(email);
+  }
+
+  // Function to validate password format
+  bool _isPasswordValid(String password) {
+    final RegExp passwordRegExp = RegExp(
+        r'^(?=.*[0-9])(?=.*[!@#\$%^&*(),.?":{}|<>])[a-zA-Z0-9!@#\$%^&*(),.?":{}|<>]{8,}$'
+    );
+    return passwordRegExp.hasMatch(password);
   }
 
   // Function to display DatePicker and add selected dates to the list
@@ -126,7 +138,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             children: [
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(backgroundColor: hostSelected? const Color.fromARGB(255, 48, 38, 159) : null,),
-                                child:Text("HOST"), 
+                                child:Text("ADMIN"), 
                                 onPressed:() {
                                 setState(() {
                                   hostSelected = !hostSelected;
@@ -149,20 +161,21 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             ]
                           ),
                           TextField(
-                            controller: nameController,
-                            decoration: InputDecoration(labelText: 'Name'),
-                          ),
-                          // Email input field
-                          TextField(
                             controller: emailController,
-                            decoration: InputDecoration(labelText: 'Email'),
+                            decoration: InputDecoration(
+                              labelText: 'Email',
+                              errorText: emailErrorText,  // Display error if email is invalid
+                            ),
                           ),
                           // Password input field
                           Stack(
                             children: [
                               TextField(
                                 controller: passwordController,
-                                decoration: InputDecoration(labelText: 'Password'),
+                                decoration: InputDecoration(
+                                  labelText: 'Password', 
+                                  errorText: passwordErrorText,
+                                ),
                                 obscureText: !showPas,
                               ),
                               Positioned(
@@ -284,28 +297,58 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           // Register button
                           ElevatedButton(
                             onPressed: () async {
-                              if (passwordController.text == confirmPasswordController.text) { //Checks if passwords match
-                                bool success = await authService.registerUser(
-                                    emailController.text,
-                                    passwordController.text,
-                                    nameController.text,
-                                    address1Controller.text,
-                                    address2Controller.text,
-                                    cityController.text,
-                                    zipCodeController.text,
-                                    selectedState,
-                                    selectedSkills,
-                                    accType,
-                                  );
-                                if (success) {
-                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User registered successfully!')));
-                                  _loadExistingUsers();
-                                  Navigator.pop(context);
+                              if (!_isEmailValid(emailController.text)) {
+                                setState(() {
+                                  emailErrorText = 'Please enter a valid email address';
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Invalid email')));
+                                });
+                                return; // Stop further execution if email is invalid
+                              }else{
+                                setState(() {
+                                  emailErrorText = "";                                  
+                                });
+                              }
+
+                              if (!_isPasswordValid(passwordController.text)) {
+                                setState(() {
+                                  passwordErrorText = 'Password must be at least 8 characters long and include at least one number and one symbol';
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Password does not meet criteria')));
+                                });
+                                return; // Stop further execution if password is invalid
+                              }else{
+                                setState(() {
+                                  passwordErrorText = "";                                  
+                                });
+                              }
+
+                              if(accType == -1){
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Select an acounnt type'))); //Make sure account stuff is filled out
+                                return; //Stop if account type is not selected
+                              }
+                              else{
+                                if (passwordController.text == confirmPasswordController.text) { //Checks if passwords match
+                                  bool success = await authService.registerUser(
+                                      emailController.text,
+                                      passwordController.text,
+                                      nameController.text,
+                                      address1Controller.text,
+                                      address2Controller.text,
+                                      cityController.text,
+                                      zipCodeController.text,
+                                      selectedState,
+                                      selectedSkills,
+                                      accType,
+                                    );
+                                  if (success){
+                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User registered successfully!')));
+                                    _loadExistingUsers();
+                                    Navigator.pop(context);
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User already exists')));
+                                  }
                                 } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User already exists')));
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Passwords do not match')));
                                 }
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Passwords do not match')));
                               }
                             },
                             child: Text('Register'),

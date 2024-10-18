@@ -8,24 +8,27 @@ class Event {
   final String id;
 
   @HiveField(1)
-  final String name;
+  late final String name;
 
   @HiveField(2)
-  final String description;
+  late final String description;
 
   @HiveField(3)
-  final String location;
+  late final String location;
 
   @HiveField(4)
-  final List<String> requiredSkills;
+  late final String address;
 
   @HiveField(5)
-  final String urgency;
+  late final List<String> requiredSkills;
 
   @HiveField(6)
-  final DateTime eventDate;
+  late final String urgency;
 
   @HiveField(7)
+  late final DateTime eventDate;
+
+  @HiveField(8)
   List<String> assignedVolunteers;
 
   Event({
@@ -33,6 +36,7 @@ class Event {
     required this.name,
     required this.description,
     required this.location,
+    required this.address,
     required this.requiredSkills,
     required this.urgency,
     required this.eventDate,

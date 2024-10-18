@@ -148,7 +148,7 @@ class _LoginScreen extends State<LoginScreen>{
                           if (user != null) {
                             //On successful login, set the global email to unlock access to user-specific screens
                             Provider.of<UserProvider>(context, listen: false).setEmail(email);
-                            Provider.of<UserProvider>(context, listen: false).logIn(false);
+                            Provider.of<UserProvider>(context, listen: false).logIn();
                             Provider.of<UserProvider>(context, listen: false).setAccountType(user.accType);
                             // On successful login, navigate to ProfileScreen and pass the User object
                             Navigator.pop(context, user);

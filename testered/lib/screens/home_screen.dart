@@ -119,11 +119,13 @@ class _MyHomePageState extends State<MyHomePage> {
           Padding(
             padding: const EdgeInsets.only(right: buttonPaddingRight),
             child: IconButton(
-              icon: Icon(Icons.person_rounded, color: Colors.black),  // Logout icon button
+              icon: Icon(Icons.person_rounded, color: Colors.black),  // Login icon button
               onPressed: () async{
               final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
                 if(result != null){
-                  login(result);
+                  setState(() {
+                    login(result);   
+                  });
                 }
               },
             ),
@@ -144,7 +146,9 @@ class _MyHomePageState extends State<MyHomePage> {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[  
               Image.asset('images/mainPageBanner.jpg', fit: BoxFit.fitWidth, height: 690,),
-              Text("WELCOME USER OF LEVEL ${getAccType(accType)}")
+              Text("WELCOME USER OF LEVEL ${getAccType(accType)}"),
+              Text("WELCOME USER OF LEVEL ${Provider.of<UserProvider>(context, listen: false).accountType}"),
+              Text("WELCOME USER ${Provider.of<UserProvider>(context, listen: false).email}"),
           ],
         ),
         )

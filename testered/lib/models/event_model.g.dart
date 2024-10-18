@@ -21,16 +21,18 @@ class EventAdapter extends TypeAdapter<Event> {
       name: fields[1] as String,
       description: fields[2] as String,
       location: fields[3] as String,
-      requiredSkills: (fields[4] as List).cast<String>(),
-      urgency: fields[5] as String,
-      eventDate: fields[6] as DateTime,
+      address: fields[4] as String,
+      requiredSkills: (fields[5] as List).cast<String>(),
+      urgency: fields[6] as String,
+      eventDate: fields[7] as DateTime,
+      assignedVolunteers: (fields[8] as List).cast<String>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, Event obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -40,11 +42,15 @@ class EventAdapter extends TypeAdapter<Event> {
       ..writeByte(3)
       ..write(obj.location)
       ..writeByte(4)
-      ..write(obj.requiredSkills)
+      ..write(obj.address)
       ..writeByte(5)
-      ..write(obj.urgency)
+      ..write(obj.requiredSkills)
       ..writeByte(6)
-      ..write(obj.eventDate);
+      ..write(obj.urgency)
+      ..writeByte(7)
+      ..write(obj.eventDate)
+      ..writeByte(8)
+      ..write(obj.assignedVolunteers);
   }
 
   @override
