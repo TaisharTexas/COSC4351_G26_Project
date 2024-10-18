@@ -45,6 +45,14 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   List<User> existingUsers = []; // List to store existing users
 
+  //error texts
+  String? emailErrorText;
+  String? passwordErrorText;
+
+  //error texts
+  String? emailErrorText;
+  String? passwordErrorText;
+
   // Fetch all users from the database on screen load
   @override
   void initState() {
