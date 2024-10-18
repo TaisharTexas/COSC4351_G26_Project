@@ -7,14 +7,90 @@ import '../screens/profile_screen_user.dart';
 import '../screens/profile_screen_admin.dart';
 import '../services/user_provider.dart';
 import '../services/user_service.dart';
+import 'package:testered/screens/home_screen.dart';
 import '../services/db_helper.dart';
 import '../models/event_model.dart';
 
 class CustomNavBar extends StatelessWidget implements PreferredSizeWidget {
   final String email;
   static const double buttonPaddingRight = 25.0;
+  bool notifsOpen = false;
+  OverlayEntry? _overlayEntry;
+  List<Event> notifications = []; // Initialize here
 
   CustomNavBar({required this.email});
+
+  void _showNotifications(BuildContext context, List<Event> notifications){
+    final RenderBox renderBox = context.findRenderObject() as RenderBox;
+    final size = renderBox.size;
+    final offset = renderBox.localToGlobal(Offset.zero);
+
+    _overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        top: offset.dy + size.height,
+        left: (offset.dx + 550 + size.width / 2),
+        width: 200,
+        child: Material(
+          elevation: 4.0,
+          child: Container(
+            height: 250,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: notifications.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        title: Text(notifications[index].name),
+                        onTap: () {
+                        },
+                        trailing: IconButton(
+                          icon: Icon(Icons.clear),
+                          onPressed: () {
+                            setState(() {
+                              notifications.removeAt(index);
+                              _updateOverlay();
+                            });
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                Divider(),
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      notifications.clear();
+                      _removeOverlay();
+                      _updateOverlay();
+                    });
+                  },
+                  child: Text('Clear All'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    Overlay.of(context)?.insert(_overlayEntry!);
+  }
+  void _updateOverlay() {
+    // If the overlay is already displayed, update it
+    if (_overlayEntry != null) {
+      _overlayEntry!.markNeedsBuild(); // Rebuild the overlay to reflect changes
+    }
+  }
+
+  void _removeOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +185,71 @@ class CustomNavBar extends StatelessWidget implements PreferredSizeWidget {
             ),
           ),
         ),
-
+        Padding(padding: const EdgeInsets.only(right: buttonPaddingRight),
+          child: Stack(
+            children: <Widget>[
+              IconButton(
+                icon: Stack(
+                  children: <Widget>[
+                    Icon(Icons.notifications, size: 30.0), //Bell for notifs
+                    if (notifications.isNotEmpty)
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Container(
+                          padding: EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          constraints: BoxConstraints(
+                            minWidth: 20,
+                            minHeight: 20,
+                          ),
+                          child: Text(
+                            '${notifications.length}',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text("Notifications"),
+                        content: SingleChildScrollView(
+                          child: ListBody(
+                            children: notifications.map((notification) {
+                              return ListTile(
+                                title: Text(notification.name),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                        actions: <Widget>[
+                          TextButton(
+                            child: Text("Close"),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+              )
+            ],
+          ),
+        ),
+        // LOGOUT BUTTON
         Padding(
           padding: const EdgeInsets.only(right: buttonPaddingRight),
           child: IconButton(

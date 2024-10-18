@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:testered/screens/profile_screen.dart';
+import 'package:testered/screens/profile_screen_user.dart';
+import 'package:testered/screens/profile_screen_admin.dart';
 import '../services/auth_service.dart';
 import '../models/user_model.dart';
 import '../services/user_provider.dart';
 import 'package:testered/main.dart';
 import 'package:testered/screens/login_screen.dart';
 import '../models/custom_nav_bar.dart';
-import 'package:testered/screens/event_display_screen.dart';
+import 'package:testered/screens/event_display_screen_user.dart';
+import 'package:testered/screens/event_display_screen_admin.dart';
 import 'package:testered/services/user_provider.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -146,9 +148,9 @@ class _MyHomePageState extends State<MyHomePage> {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[  
               Image.asset('images/mainPageBanner.jpg', fit: BoxFit.fitWidth, height: 690,),
-              Text("WELCOME USER OF LEVEL ${getAccType(accType)}"),
-              Text("WELCOME USER OF LEVEL ${Provider.of<UserProvider>(context, listen: false).accountType}"),
-              Text("WELCOME USER ${Provider.of<UserProvider>(context, listen: false).email}"),
+              // Text("WELCOME USER OF LEVEL ${getAccType(accType)}"),
+              // Text("WELCOME USER OF LEVEL ${Provider.of<UserProvider>(context, listen: false).accountType}"),
+              // Text("WELCOME USER ${Provider.of<UserProvider>(context, listen: false).email}"),
           ],
         ),
         )
