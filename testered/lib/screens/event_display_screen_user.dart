@@ -7,38 +7,50 @@ import '../models/event_model.dart';
 import 'package:intl/intl.dart';
 import '../services/user_provider.dart';
 
-class EventDisplayScreenUser extends StatefulWidget {
+class EventDisplayScreen extends StatefulWidget {
   @override
-  _EventListScreenState createState() => _EventListScreenState();
+  _EventDisplayScreenState createState() => _EventDisplayScreenState();
 }
 
-class _EventListScreenState extends State<EventDisplayScreenUser> {
+class _EventDisplayScreenState extends State<EventDisplayScreen> {
   List<Event> events = [];
   List<User> volunteers = [];
+  bool isLoading = true; // Loading state for events and volunteers
 
   @override
   void initState() {
     super.initState();
-    _loadEvents();
-    _loadVolunteers();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    await Future.wait([_loadEvents(), _loadVolunteers()]);
+    setState(() {
+      isLoading = false; // Set loading to false once data is loaded
+    });
   }
 
   Future<void> _loadEvents() async {
-    final loadedEvents = DBHelper().getAllEvents();
+    final loadedEvents = await DBHelper().getAllEvents(); // Assuming this method is async
     setState(() {
       events = loadedEvents;
     });
   }
 
   Future<void> _loadVolunteers() async {
-    final loadedVolunteers = DBHelper().getAllUsers(); // Assuming this method exists to get all users
+    final loadedVolunteers = await DBHelper().getAllUsers(); // Assuming this method exists to get all users
     setState(() {
       volunteers = loadedVolunteers;
     });
   }
 
+  Future<void> _deleteEvent(String eventId) async {
+    await DBHelper().deleteEvent(eventId);
+    _loadEvents();  // Refresh the event list after deletion
+  }
+
   Future<void> _assignVolunteersToEvent(String eventId, List<String> assignedVolunteers) async {
-    final event = DBHelper().getEventById(eventId);
+    final event = await DBHelper().getEventById(eventId); // Assuming this method is async
     if (event != null) {
       event.assignedVolunteers = assignedVolunteers;
       await DBHelper().updateEvent(event);  // Assuming you have an updateEvent method in DBHelper
@@ -51,10 +63,9 @@ class _EventListScreenState extends State<EventDisplayScreenUser> {
     }
   }
 
+  // Show a dialog with checkboxes for assigning volunteers
   void _showAssignVolunteersDialog(Event event) {
-    final userEmail = Provider.of<UserProvider>(context, listen: false).email;
-    List<String> selectedVolunteers = List.from(event.assignedVolunteers);  // Copy to avoid mutating directly
-    bool isUserAssigned = selectedVolunteers.contains(userEmail);
+    List<String> selectedVolunteers = List.from(event.assignedVolunteers);  // Make a copy to avoid mutating directly
 
     showDialog(
       context: context,
@@ -62,20 +73,26 @@ class _EventListScreenState extends State<EventDisplayScreenUser> {
         return StatefulBuilder(  // Use StatefulBuilder to manage dialog state
           builder: (BuildContext context, StateSetter setStateDialog) {
             return AlertDialog(
-              title: Text("Assign Yourself to ${event.name}"),
-              content: CheckboxListTile(
-                title: Text(userEmail),
-                value: isUserAssigned,
-                onChanged: (bool? value) {
-                  setStateDialog(() {
-                    if (value == true) {
-                      selectedVolunteers.add(userEmail);  // Add user to selected volunteers
-                    } else {
-                      selectedVolunteers.remove(userEmail);  // Remove user from selected volunteers
-                    }
-                    isUserAssigned = value ?? false;  // Update state
-                  });
-                },
+              title: Text("Assign Volunteers"),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: volunteers.map((User volunteer) {
+                    return CheckboxListTile(
+                      title: Text(volunteer.fullName),
+                      value: selectedVolunteers.contains(volunteer.email),
+                      onChanged: (bool? value) {
+                        setStateDialog(() {
+                          if (value == true) {
+                            selectedVolunteers.add(volunteer.email);
+                          } else {
+                            selectedVolunteers.remove(volunteer.email);
+                          }
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
               ),
               actions: [
                 TextButton(
@@ -87,7 +104,7 @@ class _EventListScreenState extends State<EventDisplayScreenUser> {
                 TextButton(
                   child: Text("Save"),
                   onPressed: () async {
-                    await _assignVolunteersToEvent(event.id, selectedVolunteers);  // Save the selected volunteers
+                    await _assignVolunteersToEvent(event.id, selectedVolunteers);  // Save the assigned volunteers
                     Navigator.of(context).pop();  // Close the dialog
                   },
                 ),
@@ -102,9 +119,12 @@ class _EventListScreenState extends State<EventDisplayScreenUser> {
   @override
   Widget build(BuildContext context) {
     final userEmail = Provider.of<UserProvider>(context).email;
+
     return Scaffold(
       appBar: CustomNavBar(email: userEmail),
-      body: events.isEmpty
+      body: isLoading
+          ? Center(child: CircularProgressIndicator()) // Show loading indicator while fetching data
+          : events.isEmpty
           ? Center(child: Text('No events available.'))
           : ListView.builder(
         itemCount: events.length,
@@ -113,8 +133,10 @@ class _EventListScreenState extends State<EventDisplayScreenUser> {
           List<String> selectedVolunteers = event.assignedVolunteers;
 
           return Card(
+            margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16), // Margin for cards
+            elevation: 4, // Slight elevation for cards
             child: Padding(
-              padding: const EdgeInsets.all(8.0),  // Add padding to each card
+              padding: const EdgeInsets.all(16.0), // Increased padding for better readability
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -125,33 +147,15 @@ class _EventListScreenState extends State<EventDisplayScreenUser> {
                       Flexible(
                         child: Text(
                           event.name,
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                           overflow: TextOverflow.ellipsis,  // Ensure title does not overflow
                         ),
                       ),
                       Text(
                         DateFormat('MM/dd/yyyy').format(event.eventDate),
-                        style: TextStyle(fontSize: 14, color: Colors.grey),
+                        style: TextStyle(fontSize: 16, color: Colors.grey),
                       ),
                     ],
-                  ),
-
-                  // Location and Address
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Location: ${event.location}',
-                          style: TextStyle(fontSize: 14),
-                        ),
-                        Text(
-                          'Address: ${event.address}',  // Display address here
-                          style: TextStyle(fontSize: 14),
-                        ),
-                      ],
-                    ),
                   ),
 
                   // Skills
@@ -183,12 +187,25 @@ class _EventListScreenState extends State<EventDisplayScreenUser> {
                         style: TextStyle(color: Colors.red),
                       ),
 
-                      // Action Buttons (Assign Volunteers)
-                      IconButton(
-                        icon: Icon(Icons.person_add),
-                        onPressed: () {
-                          _showAssignVolunteersDialog(event);  // Show dialog to assign volunteers
-                        },
+                      // Action Buttons (Delete, Assign Volunteers)
+                      Row(
+                        children: [
+                          // Delete Button
+                          IconButton(
+                            icon: Icon(Icons.delete, color: Colors.red),
+                            onPressed: () async {
+                              await _deleteEvent(event.id);  // Delete event
+                            },
+                          ),
+
+                          // Assign Volunteers Button
+                          IconButton(
+                            icon: Icon(Icons.person_add),
+                            onPressed: () {
+                              _showAssignVolunteersDialog(event);  // Show dialog to assign volunteers
+                            },
+                          ),
+                        ],
                       ),
                     ],
                   ),

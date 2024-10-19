@@ -23,8 +23,8 @@ class _RecommendedEventsAdminState extends State<RecommendedEventsAdmin> {
 
   Future<void> _loadVolunteersAndEvents() async {
     // Load volunteers and events from the database
-    final loadedVolunteers = DBHelper().getAllUsers();
-    final loadedEvents = DBHelper().getAllEvents();
+    final loadedVolunteers = await DBHelper().getAllUsers(); // Ensure this method is async
+    final loadedEvents = await DBHelper().getAllEvents(); // Ensure this method is async
 
     setState(() {
       volunteers = loadedVolunteers;
@@ -112,7 +112,9 @@ class _RecommendedEventsAdminState extends State<RecommendedEventsAdmin> {
                               Checkbox(
                                 value: isAssigned,
                                 onChanged: (bool? value) {
-                                  _toggleAssignment(event, volunteer, isAssigned);
+                                  if (value != null) {
+                                    _toggleAssignment(event, volunteer, isAssigned);
+                                  }
                                 },
                               ),
                             ],
