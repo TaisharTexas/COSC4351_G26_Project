@@ -21,15 +21,43 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              // Banner Image
-              Image.asset(
-                'images/mainPageBanner.jpg',
-                fit: BoxFit.fitWidth,
-                height: 690,
-                width: double.infinity,
+              // Stack for overlaying text on the banner image
+              Stack(
+                alignment: Alignment.center, // Center the text over the image
+                children: [
+                  // Banner Image
+                  Image.asset(
+                    'images/mainPageBanner.jpg',
+                    fit: BoxFit.fitWidth,
+                    height: 690,
+                    width: double.infinity,
+                  ),
+                  // Overlayed Title Text
+                  Positioned(
+                    top: 150, // Adjust the vertical position of the text
+                    left: 20,
+                    right: 20, // Ensure the text is not too close to the edges
+                    child: Text(
+                      "Hi, if this were a real volunteer organization, this page would have info about the org and cool things you can do to make the whole thing look appealing to people just finding the site!",
+                      textAlign: TextAlign.center, // Center the text horizontally
+                      style: TextStyle(
+                        color: Colors.white, // White text to stand out against the image
+                        fontSize: 24, // Large font size for visibility
+                        fontWeight: FontWeight.bold, // Bold text for emphasis
+                        shadows: [
+                          Shadow(
+                            blurRadius: 10.0,
+                            color: Colors.black.withOpacity(0.6), // Slight shadow for readability
+                            offset: Offset(2.0, 2.0),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
 
-              SizedBox(height: 30), // Adds space between banner and button
+              SizedBox(height: 30), // Adds space between the banner and button
 
               // Login Button
               ElevatedButton(
