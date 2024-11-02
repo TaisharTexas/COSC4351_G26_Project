@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:testered/models/user_model.dart';
-
 import '../screens/login_screen.dart';
 import '../screens/profile_screen.dart';
 import '../services/user_provider.dart';

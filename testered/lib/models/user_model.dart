@@ -43,9 +43,6 @@ class User {
   @HiveField(11)
   List<String> pastEvents;
 
-  @HiveField(12)
-  bool isAdmin;
-
 
   // For DateTime, Hive stores this as a list
 
@@ -63,6 +60,5 @@ class User {
     this.preferences = '',
     this.availability = const [],
     this.pastEvents = const [],
-    this.isAdmin = false,
   });
 }

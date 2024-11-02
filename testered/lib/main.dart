@@ -2,18 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:testered/screens/event_creation_screen.dart';
-import 'package:testered/screens/event_display_screen_admin.dart';
-import 'package:testered/screens/event_display_screen_user.dart';
+import 'package:testered/screens/event_display_screen.dart';
 import 'package:testered/screens/login_screen.dart';
-import 'package:testered/screens/recommended_events_screen_admin.dart';
-import 'package:testered/screens/recommended_events_screen_user.dart';
-import 'package:testered/screens/registration_screen_user.dart';
+import 'package:testered/screens/profile_screen.dart';
+import 'package:testered/screens/registration_screen.dart';
 import 'package:testered/screens/volunteer_display_screen.dart';
+import 'package:testered/screens/volunteer_listing_screen.dart';
 import 'package:testered/services/db_helper.dart';
 import 'package:provider/provider.dart';
 import 'models/event_model.dart';
 import 'services/user_provider.dart';
-import 'screens/home_screen.dart';
 
 import 'models/user_model.dart';
 
@@ -56,16 +54,13 @@ class VolunteerApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      initialRoute: '/landing',
+      initialRoute: '/login',
       routes: {
-        '/landing': (context) => HomeScreen(title: '',),
         '/login': (context) => LoginScreen(),
         '/register': (context) => RegistrationScreen(),
-        '/eventListAdmin': (context) => EventDisplayScreenAdmin(),
-        '/eventListUser': (context) => EventDisplayScreenUser(),
+        '/eventList': (context) => EventDisplayScreen(),
         '/eventCreate': (context) => EventCreationScreen(),
-        '/recommendedEventsAdmin': (context) => RecommendedEventsAdmin(),
-        '/recommendedEventsUser': (context) => RecommendedEventsUser(),
+        '/volunteerListMatch': (context) => VolunteerListingScreen(),
         '/volunteerDisplay': (context) => VolunteerDisplayScreen(),
 
       },
