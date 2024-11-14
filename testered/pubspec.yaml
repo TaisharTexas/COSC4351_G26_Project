@@ -37,7 +37,11 @@ dependencies:
   hive: ^2.0.5  # Hive package
   hive_flutter: ^1.1.0
   provider: ^6.1.2
-#  sqflite: ^2.0.0+4
+  csv: ^5.0.0
+  path_provider: ^2.0.11
+  pdf: ^3.6.0
+  printing: ^5.10.0
+  #  sqflite: ^2.0.0+4
 #  path: ^1.8.0
 #  sqflite_common_ffi: ^2.0.0+1  # Add this for FFI support on desktop
 

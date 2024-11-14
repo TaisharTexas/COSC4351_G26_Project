@@ -41,7 +41,7 @@ class _LoginScreen extends State<LoginScreen>{
              ),
             Center(
               child: Container(
-                width: 400,
+                width: 600,
                 height: 500,
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -88,7 +88,7 @@ class _LoginScreen extends State<LoginScreen>{
                             ),
                             Flexible(
                               child:SizedBox(
-                                width: 200,
+                                width: 300,
                                 child:TextField(
                                   controller: emailController,
                                   obscureText: false,
@@ -117,7 +117,7 @@ class _LoginScreen extends State<LoginScreen>{
                             ),
                             Flexible(
                               child: SizedBox(
-                                width: 200,
+                                width: 300,
                                 child:TextField(
                                   obscureText: showPas,
                                   controller: passwordController,

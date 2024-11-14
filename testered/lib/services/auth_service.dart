@@ -12,7 +12,7 @@ class AuthService {
   }
 
   // Register a new user
-  Future<bool> registerUser(String email, String password, String name, String address1, String address2, String city, String zipcode, String state, List<String> skills) async {
+  Future<bool> registerUser(String email, String password) async {
     // Check if the user already exists based on email
     User? existingUser = dbHelper.getUserByEmail(email);
 
@@ -23,21 +23,42 @@ class AuthService {
     // Create a new user with a unique ID (email)
     User newUser = User(
       email: email,
-      password: password,
-      fullName: name,
-      address1: address1,
-      address2: address2,
-      city: city,
-      zipCode: zipcode,
-      state: state,
-      skills: skills
-
-
+      password: password
 
     );
+
 
     // Insert the new user into the Hive box using DBHelper
     await dbHelper.insertUser(newUser);
     return true;
   }
+
+  Future<bool> registerUserFull(String email, String password, String name, String address1, String address2, String city, String zipcode, String state, List<String> skills) async {
+    // Check if the user already exists based on email
+    User? existingUser = dbHelper.getUserByEmail(email);
+
+    if (existingUser != null) {
+      return false; // User already exists
+    }
+
+    // Create a new user with a unique ID (email)
+    User newUser = User(
+        email: email,
+        password: password,
+        fullName: name,
+        address1: address1,
+        address2: address2,
+        city: city,
+        zipCode: zipcode,
+        state: state,
+        skills: skills
+
+    );
+
+
+    // Insert the new user into the Hive box using DBHelper
+    await dbHelper.insertUser(newUser);
+    return true;
+  }
+
 }
