@@ -1,37 +1,28 @@
 import 'dart:io';
 import 'package:hive/hive.dart';
+import 'package:flutter/material.dart';
+import 'package:open_file/open_file.dart';
+import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:csv/csv.dart';
+import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
+import '../models/event_model.dart';
 
-//PDF Export
-Future<void> exportHiveBoxToPdf(String boxName) async {
+import '../models/event_model.dart';
+
+// PDF Export and Preview
+Future<void> exportHiveBoxToPdf(BuildContext context, String boxName) async {
   try {
-    // Open the Hive box
     final box = await Hive.openBox(boxName);
-
-    // Create a PDF document
     final pdf = pw.Document();
 
-    // Add a title page
-    pdf.addPage(
-      pw.Page(
-        build: (pw.Context context) => pw.Center(
-          child: pw.Text(
-            'Data from $boxName',
-            style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold),
-          ),
-        ),
-      ),
-    );
-
-    // Add the data table to a new page
     pdf.addPage(
       pw.Page(
         build: (pw.Context context) {
           return pw.Table.fromTextArray(
-            headers: box.keys.toList(), // Column headers
+            headers: box.keys.toList(),
             data: box.toMap().entries.map((entry) {
               final values = entry.value is Map
                   ? (entry.value as Map).values.toList()
@@ -43,53 +34,112 @@ Future<void> exportHiveBoxToPdf(String boxName) async {
       ),
     );
 
-    // Save the PDF file to the device
-    final directory = await getApplicationDocumentsDirectory();
-    final filePath = "${directory.path}/$boxName.pdf";
-    final file = File(filePath);
-    await file.writeAsBytes(await pdf.save());
-
-    print("PDF exported to $filePath");
+    // Open PDF preview inside the app
+    await Printing.layoutPdf(
+      onLayout: (PdfPageFormat format) async => pdf.save(),
+    );
   } catch (e) {
     print("Error exporting Hive box to PDF: $e");
   }
 }
 
-// CSV Export
-Future<void> exportHiveBoxToCsv(String boxName) async {
+// CSV Export and Preview
+Future<void> exportEventBoxToCsv(BuildContext context) async {
   try {
-    // Open the Hive box
-    final box = await Hive.openBox(boxName);
+    // Ensure the box is open
+    var box = Hive.isBoxOpen('events') ? Hive.box<Event>('events') : await Hive.openBox<Event>('events');
 
-    // Prepare the CSV data
-    List<List<dynamic>> rows = [];
+    // Debugging: Print the number of entries in the box
+    print("Number of entries in 'events' box: ${box.length}");
 
-    // Add headers
-    rows.add(box.keys.toList()); // Assumes each entry is a Map with the same keys (fields)
+    // Define the headers
+    List<List<dynamic>> rows = [
+      ["ID", "Name", "Description", "Location", "Date", "Address", "Urgency", "Skills", "Volunteers"]
+    ];
 
-    // Add box entries as CSV rows
-    box.toMap().forEach((key, value) {
-      // If each entry in the box is a Map, convert it to a list of values
-      if (value is Map) {
-        rows.add(value.values.toList());
-      } else {
-        rows.add([key, value]);
+    // Populate rows with event data
+    for (var event in box.values) {
+      if (event != null) {
+        rows.add([
+          event.id,
+          event.name,
+          event.description,
+          event.location,
+          DateFormat('MM/dd/yyyy').format(event.eventDate),
+          event.address,
+          event.urgency,
+          event.requiredSkills.join(', '),
+          event.assignedVolunteers.join(', ')
+        ]);
       }
-    });
+    }
 
-    // Convert rows to CSV format
+    // Debugging: Print the generated CSV rows
+    print("Generated CSV rows:");
+    for (var row in rows) {
+      print(row);
+    }
+
+    // Check if there is data to export
+    if (rows.length <= 1) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("No data available for CSV export")),
+      );
+      return;
+    }
+
+    // Generate CSV content
     String csvData = const ListToCsvConverter().convert(rows);
 
-    // Get the directory to save the CSV file
+    // Get a directory to save the CSV file
     final directory = await getApplicationDocumentsDirectory();
-    final filePath = "${directory.path}/$boxName.csv";
+    final path = "${directory.path}/events.csv";
+    final file = File(path);
 
     // Write the CSV data to a file
-    final file = File(filePath);
     await file.writeAsString(csvData);
 
-    print("Data exported to $filePath");
+    // Show a preview in a dialog with DataTable
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("CSV Preview"),
+          content: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: DataTable(
+              columns: rows.first.map((header) => DataColumn(label: Text(header.toString()))).toList(),
+              rows: rows.skip(1).map((row) {
+                return DataRow(
+                  cells: row.map((cell) => DataCell(Text(cell.toString()))).toList(),
+                );
+              }).toList(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              child: Text("Close"),
+              onPressed: () => Navigator.pop(context),
+            ),
+            TextButton(
+              child: Text("Open CSV"),
+              onPressed: () {
+                Navigator.pop(context); // Close the dialog
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("CSV file saved at $path")),
+                );
+                // Open the file in the default viewer
+                OpenFile.open(path); // Requires the `open_file` package
+              },
+            ),
+          ],
+        );
+      },
+    );
   } catch (e) {
-    print("Error exporting Hive box to CSV: $e");
+    print("Error exporting events to CSV: $e");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Error exporting events to CSV: $e")),
+    );
   }
 }
