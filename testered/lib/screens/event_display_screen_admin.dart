@@ -255,12 +255,12 @@ class _EventListScreenState extends State<EventDisplayScreenAdmin> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               ElevatedButton(
-                onPressed: () => exportEventBoxToCsv(context),
+                onPressed: () => exportEventBoxToCsvWeb(events),
                 child: Text("Export to CSV"),
               ),
               SizedBox(width: 10),
               ElevatedButton(
-                onPressed: () => exportHiveBoxToPdf(context, 'events'),
+                onPressed: () => exportHiveBoxToPdf(context, 'event'),
                 child: Text("Export to PDF"),
               ),
               SizedBox(width: 20),
