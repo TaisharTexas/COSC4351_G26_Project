@@ -7,6 +7,7 @@ import '../models/event_model.dart'; // Assuming you have an Event model
 import '../services/user_provider.dart';
 import '../services/user_service.dart';
 import '../services/db_helper.dart';  // Assuming you have a DBHelper to fetch events
+import '../services/exporter.dart';
 
 class ProfileScreenAdmin extends StatefulWidget {
   final User user;
@@ -194,6 +195,24 @@ class _ProfileScreenAdminState extends State<ProfileScreenAdmin> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Add Export to CSV Button
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  ElevatedButton(
+                    onPressed: () async {
+                      await exportUserBoxToCsvWeb(users); // Call the export function
+                    },
+                    child: Text("Export Users to CSV"),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      await exportUserBoxToPdfWeb(users); // Call the export function
+                    },
+                    child: Text("Export Users to PDF"),
+                  ),
+                ],
+              ),
               SizedBox(height: 20),
 
               // Currently Viewing Text

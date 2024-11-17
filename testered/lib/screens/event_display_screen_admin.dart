@@ -260,7 +260,7 @@ class _EventListScreenState extends State<EventDisplayScreenAdmin> {
               ),
               SizedBox(width: 10),
               ElevatedButton(
-                onPressed: () => exportHiveBoxToPdf(context, 'event'),
+                onPressed: () => exportEventBoxToPdfWeb(events),
                 child: Text("Export to PDF"),
               ),
               SizedBox(width: 20),
