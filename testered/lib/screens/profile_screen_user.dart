@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart'; // For date formatting
 import 'package:provider/provider.dart';
 import '../models/custom_nav_bar.dart';
@@ -6,7 +7,7 @@ import '../models/user_model.dart';
 import '../models/event_model.dart'; // Assuming you have an Event model
 import '../services/user_provider.dart';
 import '../services/user_service.dart';
-import '../services/db_helper.dart';  // Assuming you have a DBHelper to fetch events
+import '../services/db_helper.dart'; // Assuming you have a DBHelper to fetch events
 
 class ProfileScreenUser extends StatefulWidget {
   final User user;
@@ -29,22 +30,76 @@ class _ProfileScreenUserState extends State<ProfileScreenUser> {
   final TextEditingController preferencesController = TextEditingController();
 
   // States for dropdowns and multi-selects
-  String selectedState = 'notSet';  // Default state selection
+
+  String selectedState = 'notSet'; // Default state selection
   List<String> selectedSkills = ['Volunteer']; // Default to just "volunteer"
-  List<DateTime> selectedAvailability = [DateTime.now()]; // Default to the current time
+  List<DateTime> selectedAvailability = [
+    DateTime.now()
+  ]; // Default to the current time
 
   List<Event> volunteerHistory = []; // List to store past events
 
-  // Hardcoded lists for dropdowns (these would typically come from a service or API)
+  // Hardcoded lists for dropdowns
   final List<String> states = [
-    'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
-    'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
-    'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ',
-    'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC',
-    'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY',
+    'AL',
+    'AK',
+    'AZ',
+    'AR',
+    'CA',
+    'CO',
+    'CT',
+    'DE',
+    'FL',
+    'GA',
+    'HI',
+    'ID',
+    'IL',
+    'IN',
+    'IA',
+    'KS',
+    'KY',
+    'LA',
+    'ME',
+    'MD',
+    'MA',
+    'MI',
+    'MN',
+    'MS',
+    'MO',
+    'MT',
+    'NE',
+    'NV',
+    'NH',
+    'NJ',
+    'NM',
+    'NY',
+    'NC',
+    'ND',
+    'OH',
+    'OK',
+    'OR',
+    'PA',
+    'RI',
+    'SC',
+    'SD',
+    'TN',
+    'TX',
+    'UT',
+    'VT',
+    'VA',
+    'WA',
+    'WV',
+    'WI',
+    'WY',
     'notSet'
   ];
-  final List<String> skillsOptions = ['First Aid', 'Teaching', 'Cooking', 'Event Planning', 'Volunteer'];
+  final List<String> skillsOptions = [
+    'First Aid',
+    'Teaching',
+    'Cooking',
+    'Event Planning',
+    'Volunteer'
+  ];
 
   @override
   void initState() {
@@ -56,8 +111,14 @@ class _ProfileScreenUserState extends State<ProfileScreenUser> {
     address2Controller.text = widget.user.address2;
     cityController.text = widget.user.city;
     zipCodeController.text = widget.user.zipCode;
-    preferencesController.text = widget.user.preferences;
-    selectedState = widget.user.state;
+    preferencesController.text = widget.user.preferences;         
+    // Initialize selectedState based on user state
+    if (states.contains(widget.user.state)) {
+      selectedState = widget.user.state; // Set to the user's state if valid
+    } else {
+      selectedState = 'notSet'; // Default to 'notSet' if no valid state
+    }
+    
     selectedSkills = widget.user.skills;
     selectedAvailability = widget.user.availability;
 
@@ -74,7 +135,8 @@ class _ProfileScreenUserState extends State<ProfileScreenUser> {
   Future<void> _loadVolunteerHistory() async {
     List<Event> events = [];
     for (String eventId in widget.user.pastEvents) {
-      final event = await DBHelper().getEventById(eventId); // Assuming DBHelper has a getEventById method
+      final event = await DBHelper()
+          .getEventById(eventId); // Assuming DBHelper has a getEventById method
       if (event != null) {
         events.add(event);
       }
@@ -92,8 +154,10 @@ class _ProfileScreenUserState extends State<ProfileScreenUser> {
     // Fetch all events and filter by those assigned to the current user and happening in the next 5 days
     List<Event> allEvents = dbHelper.getAllEvents();
     List<Event> upcomingEvents = allEvents.where((event) {
-      bool isUpcoming = event.eventDate.isAfter(now) && event.eventDate.isBefore(now.add(Duration(days: 5)));
-      bool isUserAssigned = event.assignedVolunteers.contains(widget.user.email);
+      bool isUpcoming = event.eventDate.isAfter(now) &&
+          event.eventDate.isBefore(now.add(Duration(days: 5)));
+      bool isUserAssigned =
+          event.assignedVolunteers.contains(widget.user.email);
       return isUpcoming && isUserAssigned;
     }).toList();
 
@@ -123,7 +187,8 @@ class _ProfileScreenUserState extends State<ProfileScreenUser> {
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             ...upcomingEvents.map((event) {
-              return Text('${event.name} on ${DateFormat('MM/dd/yyyy').format(event.eventDate)}');
+              return Text(
+                  '${event.name} on ${DateFormat('MM/dd/yyyy').format(event.eventDate)}');
             }).toList(),
           ],
         ),
@@ -179,7 +244,8 @@ class _ProfileScreenUserState extends State<ProfileScreenUser> {
     userService.updateUserProfile(widget.user);
 
     // Show success message
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Profile updated successfully!')));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Profile updated successfully!')));
   }
 
   @override
@@ -267,7 +333,8 @@ class _ProfileScreenUserState extends State<ProfileScreenUser> {
               // Preferences (Text area, optional)
               TextField(
                 controller: preferencesController,
-                decoration: InputDecoration(labelText: 'Preferences (Optional)'),
+                decoration:
+                    InputDecoration(labelText: 'Preferences (Optional)'),
                 maxLines: 3,
               ),
 
@@ -305,16 +372,18 @@ class _ProfileScreenUserState extends State<ProfileScreenUser> {
               ),
               volunteerHistory.isNotEmpty
                   ? ListView.builder(
-                shrinkWrap: true, // Important for embedding in scrollable views
-                itemCount: volunteerHistory.length,
-                itemBuilder: (context, index) {
-                  final event = volunteerHistory[index];
-                  return ListTile(
-                    title: Text(event.name),
-                    subtitle: Text('Date: ${DateFormat('MM/dd/yyyy').format(event.eventDate)}'),
-                  );
-                },
-              )
+                      shrinkWrap:
+                          true, // Important for embedding in scrollable views
+                      itemCount: volunteerHistory.length,
+                      itemBuilder: (context, index) {
+                        final event = volunteerHistory[index];
+                        return ListTile(
+                          title: Text(event.name),
+                          subtitle: Text(
+                              'Date: ${DateFormat('MM/dd/yyyy').format(event.eventDate)}'),
+                        );
+                      },
+                    )
                   : Text('No volunteer history available.'),
             ],
           ),

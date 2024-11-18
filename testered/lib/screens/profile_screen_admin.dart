@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // For date formatting
 import 'package:provider/provider.dart';
+import 'package:universal_html/html.dart';
 import '../models/custom_nav_bar.dart';
 import '../models/user_model.dart';
 import '../models/event_model.dart'; // Assuming you have an Event model
@@ -54,7 +55,7 @@ class _ProfileScreenAdminState extends State<ProfileScreenAdmin> {
     // Load the list of users and set the selected user
     _loadUsers();
     // Check for upcoming events when the screen loads
-    _checkUpcomingEvents();
+    //_checkUpcomingEvents();
   }
 
   Future<void> _loadUsers() async {
@@ -207,6 +208,8 @@ class _ProfileScreenAdminState extends State<ProfileScreenAdmin> {
                   ),
                   ElevatedButton(
                     onPressed: () async {
+                      final DBHelper dbHelper = DBHelper();
+                      String allEvents = dbHelper.getEventById('2')!.name;
                       await exportUserBoxToPdfWeb(users); // Call the export function
                     },
                     child: Text("Export Users to PDF"),

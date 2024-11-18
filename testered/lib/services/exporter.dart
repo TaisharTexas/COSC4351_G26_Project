@@ -11,6 +11,8 @@ import 'package:universal_html/html.dart' as html;
 import 'dart:typed_data';
 import '../models/event_model.dart';
 import '../models/user_model.dart';
+import '../services/db_helper.dart';  // Assuming you have a DBHelper to fetch events
+
 
 // PDF Export and Preview
 Future<void> exportEventBoxToPdfWeb(List<Event> events) async {
@@ -20,7 +22,7 @@ Future<void> exportEventBoxToPdfWeb(List<Event> events) async {
     // Add event data with styled table
     pdf.addPage(
       pw.Page(
-        pageFormat: PdfPageFormat.letter.landscape,
+        pageFormat: PdfPageFormat(850, 650),
         build: (pw.Context context) {
           return pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -32,19 +34,17 @@ Future<void> exportEventBoxToPdfWeb(List<Event> events) async {
               pw.SizedBox(height: 10),
               pw.Table.fromTextArray(
                 headers: [
-                  'ID',
                   'Name',
                   'Description',
                   'Location',
                   'Date',
                   'Address',
                   'Urgency',
-                  'Skills',
+                  'Suggested Skills',
                   'Volunteers'
                 ],
                 data: events.map((event) {
                   return [
-                    event.id,
                     event.name,
                     event.description,
                     event.location,
@@ -99,12 +99,12 @@ Future<void> exportEventBoxToPdfWeb(List<Event> events) async {
 
 Future<void> exportUserBoxToPdfWeb(List<User> users) async {
   try {
+    final DBHelper dbHelper = DBHelper();
     final pdf = pw.Document();
-
     // Add user data with styled table
     pdf.addPage(
       pw.Page(
-        pageFormat: PdfPageFormat.letter.landscape,
+        pageFormat: PdfPageFormat(850, 650),
         build: (pw.Context context) {
           return pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -129,6 +129,7 @@ Future<void> exportUserBoxToPdfWeb(List<User> users) async {
                   'Past Events',
                   'Admin Status'
                 ],
+                
                 data: users.map((user) {
                   return [
                     user.email,
@@ -143,10 +144,11 @@ Future<void> exportUserBoxToPdfWeb(List<User> users) async {
                     user.availability
                         .map((date) => DateFormat('MM/dd/yyyy').format(date))
                         .join(', '),
-                    user.pastEvents.join(', '),
+                    user.pastEvents.map((eventId) => dbHelper.getEventById(eventId)!.name).join(', '),
                     user.isAdmin ? 'Yes' : 'No'
                   ];
                 }).toList(),
+
                 headerStyle: pw.TextStyle(
                   fontSize: 12,
                   fontWeight: pw.FontWeight.bold,
@@ -232,7 +234,7 @@ Future<void> exportEventBoxToCsvWeb(List<Event> events) async {
 
 Future<void> exportUserBoxToCsvWeb(List<User> users) async {
   try {
-
+    final DBHelper dbHelper = DBHelper();
     // Define CSV headers
     List<List<dynamic>> rows = [
       [
@@ -254,7 +256,7 @@ Future<void> exportUserBoxToCsvWeb(List<User> users) async {
         user.skills.join(', '),
         user.preferences,
         user.availability.map((date) => date.toIso8601String()).join(', '),
-        user.pastEvents.join(', '),
+        user.pastEvents.map((eventId) => dbHelper.getEventById(eventId)!.name).join(', '),
         user.isAdmin ? "Yes" : "No",
       ]);
     }

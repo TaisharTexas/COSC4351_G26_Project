@@ -7,6 +7,7 @@ import '../models/event_model.dart';
 import 'package:intl/intl.dart';
 import '../services/user_provider.dart';
 import '../services/exporter.dart';
+import 'package:testered/services/user_service.dart';
 
 class EventDisplayScreenAdmin extends StatefulWidget {
   @override
@@ -107,7 +108,6 @@ class _EventListScreenState extends State<EventDisplayScreenAdmin> {
     );
   }
 
-  // Show a dialog to edit event details
   // Show a dialog to edit event details
   void _showEditEventDialog(Event event) {
     // Controllers for editing event fields
@@ -260,9 +260,10 @@ class _EventListScreenState extends State<EventDisplayScreenAdmin> {
               ),
               SizedBox(width: 10),
               ElevatedButton(
-                onPressed: () => exportEventBoxToPdfWeb(events),
+                onPressed: () =>
+                  exportEventBoxToPdfWeb(events),
                 child: Text("Export to PDF"),
-              ),
+                ),
               SizedBox(width: 20),
             ],
           ),
