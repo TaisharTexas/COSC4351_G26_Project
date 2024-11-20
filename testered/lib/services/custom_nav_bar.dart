@@ -5,10 +5,10 @@ import 'package:intl/intl.dart';  // For date formatting
 import '../screens/login_screen.dart';
 import '../screens/profile_screen_user.dart';
 import '../screens/profile_screen_admin.dart';
-import '../services/user_provider.dart';
-import '../services/user_service.dart';
+import 'user_provider.dart';
+import 'user_service.dart';
 import 'package:testered/screens/home_screen.dart';
-import '../services/db_helper.dart';
+import 'db_helper.dart';
 import '../models/event_model.dart';
 
 class CustomNavBar extends StatefulWidget implements PreferredSizeWidget {

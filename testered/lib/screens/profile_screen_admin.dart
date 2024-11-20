@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // For date formatting
 import 'package:provider/provider.dart';
 import 'package:universal_html/html.dart';
-import '../models/custom_nav_bar.dart';
+import '../services/custom_nav_bar.dart';
 import '../models/user_model.dart';
 import '../models/event_model.dart'; // Assuming you have an Event model
 import '../services/user_provider.dart';

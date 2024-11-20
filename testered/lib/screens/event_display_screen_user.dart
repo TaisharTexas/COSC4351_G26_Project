@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/custom_nav_bar.dart';
+import '../services/custom_nav_bar.dart';
 import '../models/user_model.dart';
 import '../services/db_helper.dart';
 import '../models/event_model.dart';
