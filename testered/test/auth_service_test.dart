@@ -12,7 +12,7 @@ void main() {
     final authService = AuthService(dbHelper: mockDBHelper);
 
     test('User login success', () async {
-      when(mockDBHelper.getUser(any, any)).thenAnswer((_) async {
+      when(mockDBHelper.getUser(any as String, any as String)).thenAnswer((_) async {
         return User(email: 'john.doe@example.com', password: 'password123');
       });
 
@@ -23,7 +23,7 @@ void main() {
     });
 
     test('User login failure', () async {
-      when(mockDBHelper.getUser(any, any)).thenAnswer((_) async => null);
+      when(mockDBHelper.getUser(any as String, any as String)).thenAnswer((_) async => null);
 
       final user = await authService.login('invalid@example.com', 'wrongPassword');
 
@@ -31,13 +31,13 @@ void main() {
     });
 
     test('Register new user', () async {
-      when(mockDBHelper.getUserByEmail(any)).thenAnswer((_) async => null);
-      when(mockDBHelper.insertUser(any)).thenAnswer((_) async => Future.value());
+      when(mockDBHelper.getUserByEmail(any as String)).thenAnswer((_) async => null);
+      when(mockDBHelper.insertUser(any as User)).thenAnswer((_) async => Future.value());
 
       final result = await authService.registerUser('new.user@example.com', 'newPassword123');
 
       expect(result, true);
-      verify(mockDBHelper.insertUser(any)).called(1);
+      verify(mockDBHelper.insertUser(any as User)).called(1);
     });
   });
 }
