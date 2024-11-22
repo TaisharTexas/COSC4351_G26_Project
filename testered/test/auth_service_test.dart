@@ -12,6 +12,7 @@ void main() {
     final authService = AuthService(dbHelper: mockDBHelper);
 
     test('User login success', () async {
+      // Correctly mock the method to return a Future<User?>.
       when(mockDBHelper.getUser('john.doe@example.com', 'password123'))
           .thenAnswer((_) async => User(email: 'john.doe@example.com', password: 'password123'));
 
@@ -22,6 +23,7 @@ void main() {
     });
 
     test('User login failure', () async {
+      // Mock method to return Future<User?> where the value is null.
       when(mockDBHelper.getUser('invalid@example.com', 'wrongPassword'))
           .thenAnswer((_) async => null);
 
@@ -31,10 +33,12 @@ void main() {
     });
 
     test('Register new user', () async {
+      // Mock getUserByEmail to return null indicating no existing user.
       when(mockDBHelper.getUserByEmail('new.user@example.com'))
           .thenAnswer((_) async => null);
 
-      when(mockDBHelper.insertUser(any)).thenAnswer((_) async => null);
+      // Mock insertUser to complete without throwing.
+      when(mockDBHelper.insertUser(any)).thenAnswer((_) async => Future.value());
 
       final result = await authService.registerUser('new.user@example.com', 'newPassword123');
 
