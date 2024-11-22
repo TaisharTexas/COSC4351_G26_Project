@@ -46,7 +46,13 @@ void main() {
 
       user.fullName = 'John Smith';
       user.address1 = '456 Elm St';
-      user.skills.add('Java');
+
+      // Create a modifiable copy of the skills list
+      final modifiableSkills = List<String>.from(user.skills);
+      modifiableSkills.add('Java');
+      
+      // Assign the modified skills list back to the user
+      user.skills = modifiableSkills;
 
       expect(user.fullName, 'John Smith');
       expect(user.address1, '456 Elm St');
