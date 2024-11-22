@@ -13,7 +13,7 @@ void main() {
 
     test('User login success', () async {
       when(mockDBHelper.getUser('john.doe@example.com', 'password123'))
-          .thenAnswer((_) async => User(email: 'john.doe@example.com', password: 'password123'));
+          .thenAnswer((_) => Future.value(User(email: 'john.doe@example.com', password: 'password123')));
 
       final user = await authService.login('john.doe@example.com', 'password123');
 
@@ -23,7 +23,7 @@ void main() {
 
     test('User login failure', () async {
       when(mockDBHelper.getUser('invalid@example.com', 'wrongPassword'))
-          .thenAnswer((_) async => null);
+          .thenAnswer((_) => Future.value(null));
 
       final user = await authService.login('invalid@example.com', 'wrongPassword');
 
@@ -32,12 +32,12 @@ void main() {
 
     test('Register new user', () async {
       when(mockDBHelper.getUserByEmail('new.user@example.com'))
-          .thenAnswer((_) async => null);
+          .thenAnswer((_) => Future.value(null));
 
       final result = await authService.registerUser('new.user@example.com', 'newPassword123');
 
       expect(result, true);
-      verify(mockDBHelper.insertUser(any)).called(1);
+      verify(mockDBHelper.insertUser(captureAny)).called(1);
     });
   });
 }
