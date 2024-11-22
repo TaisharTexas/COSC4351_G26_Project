@@ -86,7 +86,7 @@ class _ProfileScreenAdminState extends State<ProfileScreenAdmin> {
   Future<void> _loadVolunteerHistory(User user) async {
     List<Event> events = [];
     for (String eventId in user.pastEvents) {
-      final event = await DBHelper().getEventById(eventId); // Assuming DBHelper has a getEventById method
+      final event = await DBHelper().getEventById(eventId) as Event?; // Assuming DBHelper has a getEventById method
       if (event != null) {
         events.add(event);
       }
