@@ -1,10 +1,4 @@
-// GENERATED CODE - DO NOT MODIFY BY HAND
-
-part of 'user_model.dart';
-
-// **************************************************************************
-// TypeAdapterGenerator
-// **************************************************************************
+part of 'user_model.dart';  // Ensure this line exists in user_model.g.dart
 
 class UserAdapter extends TypeAdapter<User> {
   @override
@@ -17,7 +11,6 @@ class UserAdapter extends TypeAdapter<User> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return User(
-      id: fields[0] as String,
       email: fields[1] as String,
       password: fields[2] as String,
       fullName: fields[3] as String,
@@ -29,6 +22,7 @@ class UserAdapter extends TypeAdapter<User> {
       skills: (fields[9] as List).cast<String>(),
       preferences: fields[10] as String,
       availability: (fields[11] as List).cast<DateTime>(),
+      pastEvents: (fields[12] as List).cast<String>(),
     );
   }
 
@@ -36,8 +30,6 @@ class UserAdapter extends TypeAdapter<User> {
   void write(BinaryWriter writer, User obj) {
     writer
       ..writeByte(12)
-      ..writeByte(0)
-      ..write(obj.id)
       ..writeByte(1)
       ..write(obj.email)
       ..writeByte(2)
@@ -59,7 +51,9 @@ class UserAdapter extends TypeAdapter<User> {
       ..writeByte(10)
       ..write(obj.preferences)
       ..writeByte(11)
-      ..write(obj.availability);
+      ..write(obj.availability)
+      ..writeByte(12)
+      ..write(obj.pastEvents);
   }
 
   @override
@@ -68,7 +62,7 @@ class UserAdapter extends TypeAdapter<User> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is UserAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+          other is UserAdapter &&
+              runtimeType == other.runtimeType &&
+              typeId == other.typeId;
 }
